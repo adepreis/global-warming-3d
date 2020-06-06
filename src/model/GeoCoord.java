@@ -5,14 +5,15 @@ package model;
  * @author adepreis
  */
 public class GeoCoord {
-    private int  lat;
-    private int  lon;
+    private final int lat;
+    private final int lon;
 
     public GeoCoord(int lat, int lon) {
-        /* TODO : restrict -90<= lat <=90 */
-        this.lat = lat;
-        /* TODO : restrict -180<= lon <=180 */
-        this.lon = lon;
+        // restrict lat between -90° and 90°
+        this.lat = lat < -90 ? -90 : (lat > 90 ? 90 : lat);
+        
+        // restrict lon between -180° and 180°
+        this.lon = lon < -180 ? -180 : (lon > 180 ? 180 : lon);
     }
 
     public int getLat() {
@@ -42,6 +43,14 @@ public class GeoCoord {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 61 * hash + this.lat;
+        hash = 61 * hash + this.lon;
+        return hash;
     }
 
     @Override

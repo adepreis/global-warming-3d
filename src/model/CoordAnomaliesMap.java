@@ -1,12 +1,13 @@
 package model;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  *
  * @author adepreis
  */
-public class CoordAnomaliesMap extends HashMap<GeoCoord, AnnualAnomaliesMap> {
+public class CoordAnomaliesMap extends LinkedHashMap<GeoCoord, AnnualAnomaliesMap> {
 
     /**
      * 
@@ -16,23 +17,24 @@ public class CoordAnomaliesMap extends HashMap<GeoCoord, AnnualAnomaliesMap> {
      * @return  
      */
     public float getAnomaly(int lat, int lon, int year) {
-        float anomaly = Float.NaN;
-        
-        /* TODO */
-        
-        return anomaly;
+        return this.get(new GeoCoord(lat, lon)).get(year);
     }
+    
     /**
      * 
      * @param lat
      * @param lon 
      * @return  
      */
-    public float[] getAllYearsFromCoord(int lat, int lon) {
+    public float[] getAllYearAnomalyByPosition(int lat, int lon) {
         int i = 0;
-        float[] list = new float[this.size()];
         
-        /* TODO */
+        AnnualAnomaliesMap aam = this.get(new GeoCoord(lat, lon));
+        float[] list = new float[aam.size()];
+        
+        for (Map.Entry<Integer, Float> e : aam.entrySet()) {
+            list[i++] = e.getValue();
+        }
         
         return list;
     }
@@ -42,11 +44,13 @@ public class CoordAnomaliesMap extends HashMap<GeoCoord, AnnualAnomaliesMap> {
      * @param year
      * @return  
      */
-    public float[] getAllCoordFromYear(int year) {
+    public float[] getAllCoordAnomalyByYear(int year) {
         int i = 0;
         float[] list = new float[this.size()];
         
-        /* TODO */
+        for (Map.Entry<GeoCoord, AnnualAnomaliesMap> e : this.entrySet()) {
+            list[i++] = e.getValue().get(year);
+        }
         
         return list;
     }
@@ -54,7 +58,8 @@ public class CoordAnomaliesMap extends HashMap<GeoCoord, AnnualAnomaliesMap> {
     @Override
     public String toString() {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("CoordAnomaliesMap : \n");
+        strBuilder.append("CoordAnomaliesMap de taille ");
+        strBuilder.append(this.size());
         
 //        Iterator<TempAnomaly> it = this.iterator();
 //        

@@ -2,6 +2,10 @@
 
 HMI project - Polytech ET3 IT - Noted for S6
 
+## Objectives / Asked work
+
+[Subject link](./Sujet_projetIHMJava2020.pdf)
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development purpose.

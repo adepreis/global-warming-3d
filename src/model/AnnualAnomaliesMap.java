@@ -1,11 +1,11 @@
 package model;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  *
  * @author adepreis
  */
-class AnnualAnomaliesMap extends HashMap<Integer, Float> {
+class AnnualAnomaliesMap extends LinkedHashMap<Integer, Float> {
     
 }

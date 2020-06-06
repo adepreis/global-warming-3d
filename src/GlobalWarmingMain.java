@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import model.ResourceManager;
 
 /**
  *
@@ -13,6 +14,12 @@ public class GlobalWarmingMain extends Application {
     
     @Override
     public void start(Stage primaryStage) {
+        ResourceManager rm = new ResourceManager();
+        
+        rm.readTemperatureFile("src/data/tempanomaly_4x4grid.csv");
+        
+        System.out.println("Max anomaly : " + rm.getMaxTempAnomaly() + ", Min anomaly : " + rm.getMinTempAnomaly());
+        
 //        try {
 //            Parent root = FXMLLoader.load(getClass().getResource("ApplicationView.fxml"));
 //            
@@ -28,7 +35,7 @@ public class GlobalWarmingMain extends Application {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {        
         launch(args);
     }
     
