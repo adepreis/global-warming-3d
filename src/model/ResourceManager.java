@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- *
+ * ResourceManager class gather the model manipulated by the application's user.
+ * A ResourceManager object encapsulates a collection of anomalies and its related values.
+ * 
  * @author adepreis
  */
 public class ResourceManager {
@@ -18,33 +20,44 @@ public class ResourceManager {
     private CoordAnomaliesMap anomalyGrid;
 
     /**
-     *
+     * Constructs an empty ResourceManager.
      */
     public ResourceManager() {
         this.minTempAnomaly = Float.NaN;
         this.maxTempAnomaly = Float.NaN;
     }
     
-
+    /**
+     * Retrieve the minimum temperature anomaly's value of the collection.
+     * 
+     * @return a float corresponding to the minimum anomaly's value.
+     */
     public float getMinTempAnomaly() { return minTempAnomaly; }
 
+    /**
+     * Retrieve the maximum temperature anomaly's value of the collection.
+     * 
+     * @return a float corresponding to the maximum anomaly's value.
+     */
     public float getMaxTempAnomaly() { return maxTempAnomaly; }
     
     /**
+     * Retrieve an anomaly according to it's coordinates and year.
      * 
-     * @param lat
-     * @param lon 
-     * @param year 
-     * @return  
+     * @param lat an integer corresponding to the searched anomaly's latitude.
+     * @param lon an integer corresponding to the searched anomaly's longitude.
+     * @param year an integer corresponding to the searched anomaly's year.
+     * @return a float corresponding to the searched anomaly's value.
      */
     public float getAnomaly(int lat, int lon, int year) {
         return anomalyGrid.getAnomaly(lat, lon, year);
     }
     
     /**
+     * Retrieve all anomaly values by coordinates.
      * 
-     * @param lat
-     * @param lon 
+     * @param lat an integer corresponding to the latitude of the anomalies we're looking for.
+     * @param lon an integer corresponding to the longitude of the anomalies we're looking for.
      * @return  
      */
     public float[] getAllYearsFromCoord(int lat, int lon) {
@@ -52,8 +65,9 @@ public class ResourceManager {
     }
 
     /**
+     * Retrieve all anomaly values by year.
      * 
-     * @param year
+     * @param year an integer corresponding to the year of the anomalies we're looking for.
      * @return  
      */
     public float[] getAllCoordFromYear(int year) {
@@ -61,8 +75,9 @@ public class ResourceManager {
     }
     
     /**
-     *
-     * @param path
+     * Fill the ResourceManager current instance from a parsed .csv file.
+     * 
+     * @param path a string corresponding to the .csv file path.
      */
     public void readTemperatureFile(String path) {
         

@@ -4,16 +4,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * CoordAnomaliesMap class associates an AnnualAnomaliesMap (a year-anomaly
+ * association) with a position.
  *
  * @author adepreis
  */
 public class CoordAnomaliesMap extends LinkedHashMap<GeoCoord, AnnualAnomaliesMap> {
 
     /**
+     * Returns an anomaly according to it's coordinates and year.
      * 
-     * @param lat
-     * @param lon 
-     * @param year 
+     * @param lat an integer corresponding to the searched anomaly's latitude.
+     * @param lon an integer corresponding to the searched anomaly's longitude.
+     * @param year an integer corresponding to the searched anomaly's year.
      * @return  
      */
     public float getAnomaly(int lat, int lon, int year) {
@@ -21,9 +24,10 @@ public class CoordAnomaliesMap extends LinkedHashMap<GeoCoord, AnnualAnomaliesMa
     }
     
     /**
+     * Returns all anomaly values according to its coordinates.
      * 
-     * @param lat
-     * @param lon 
+     * @param lat an integer corresponding to the latitude of the anomalies we're looking for.
+     * @param lon an integer corresponding to the longitude of the anomalies we're looking for.
      * @return  
      */
     public float[] getAllYearAnomalyByPosition(int lat, int lon) {
@@ -40,8 +44,9 @@ public class CoordAnomaliesMap extends LinkedHashMap<GeoCoord, AnnualAnomaliesMa
     }
 
     /**
+     * Returns all anomaly values according to its coordinates.
      * 
-     * @param year
+     * @param year an integer corresponding to the year of the anomalies we're looking for.
      * @return  
      */
     public float[] getAllCoordAnomalyByYear(int year) {

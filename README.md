@@ -30,3 +30,9 @@ First, clone this repository with the following command :
 `git clone https://github.com/adepreis/global-warming-3d`
 
 Then create the Java project from `/src` folder using your favorite IDE.
+
+---
+
+## Documentation
+
+In the `/doc` folder, you can find the project's Javadoc, the UML class diagram, the report and the wireframes/mockups of the interface.

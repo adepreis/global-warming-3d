@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import model.ResourceManager;
 
 /**
+ * Main class of the application.
  *
  * @author adepreis
  */
