@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitMenuButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane id="BorderPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ApplicationController">
+    <center>
+      <Pane fx:id="pane3D" maxHeight="600.0" maxWidth="600.0" minHeight="600.0" minWidth="600.0" prefHeight="600.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+   </center>
+   <bottom>
+      <HBox prefHeight="50.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" top="10.0" />
+         </padding>
+         <children>
+            <SplitMenuButton mnemonicParsing="false" popupSide="RIGHT" text="Vitesse">
+              <items>
+                <MenuItem mnemonicParsing="false" text="x1" />
+                <MenuItem mnemonicParsing="false" text="x2" />
+                <MenuItem mnemonicParsing="false" text="x3" />
+                <MenuItem mnemonicParsing="false" text="x4" />
+              </items>
+            </SplitMenuButton>
+         </children>
+      </HBox>
+   </bottom>
+   <right>
+      <VBox prefHeight="200.0" prefWidth="170.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets left="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </right>
+</BorderPane>
