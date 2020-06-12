@@ -1,6 +1,5 @@
 package controller;
 
-import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
@@ -9,7 +8,6 @@ import javafx.animation.AnimationTimer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -29,17 +27,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.MeshView;
-import javafx.scene.shape.Sphere;
-import javafx.scene.shape.TriangleMesh;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Translate;
 import model.AnimationSpeed;
 import model.GeoCoord;
 import model.GlobeAnomaliesRepresentation;
+import model.ResourceManager;
 import util.CameraManager;
+import util.GeometryManager;
 
 /**
  * ApplicationView FXML Controller class
@@ -47,11 +43,11 @@ import util.CameraManager;
  * @author Antonin
  */
 public class ApplicationController implements Initializable {
-
     
     private ToggleGroup tgGroup;
     private GlobeAnomaliesRepresentation displayType;
     private AnimationSpeed currentSpeed;
+    private ResourceManager rm;
     
     @FXML
     private Pane pane3D;
@@ -72,10 +68,10 @@ public class ApplicationController implements Initializable {
     private Button playBtn;
     
     @FXML
-    private Button slowDownBtn;
+    private ImageView slowDown;
     
     @FXML
-    private Button speedUpBtn;
+    private ImageView speedUp;
     
     @FXML
     private Label speedLabel;
@@ -101,58 +97,16 @@ public class ApplicationController implements Initializable {
         //Create a Pane et graph scene root for the 3D content
         Group root3D = new Group();
 
-        // Load geometry
-        ObjModelImporter objImporter = new ObjModelImporter();
-        try {
-            URL modelUrl = this.getClass().getResource("/resources/earth/earth.obj");
-            objImporter.read(modelUrl);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-        MeshView[] meshViews = objImporter.getImport();
-        Group earth = new Group(meshViews);
-        
-        root3D.getChildren().add(earth);
-        
-
-        double matOpacity = 0.05;
-        
-        final PhongMaterial greenMaterial = new PhongMaterial();
-        greenMaterial.setDiffuseColor(new Color(0, 0.3, 0, matOpacity));
-        greenMaterial.setSpecularColor(new Color(0, 0.3, 0, matOpacity));
-        
-        final PhongMaterial redMaterial = new PhongMaterial();
-        redMaterial.setDiffuseColor(new Color(0.3, 0, 0, matOpacity));
-        redMaterial.setSpecularColor(new Color(0.3, 0, 0, matOpacity));
+        root3D.getChildren().add(GeometryManager.load(this.getClass().getResource("/resources/earth/earth.obj")));
         
         
-        for (int lat = -90; lat < 90; lat = lat + 5) {
-            for (int lon = -180; lon < 180; lon = lon + 5) {
-                PhongMaterial material;
-                if (lat % 2 == 0 && lon % 2 == 0) {
-                     material = redMaterial;
-                }
-                else if (lat % 2 == 0 && lon % 2 != 0) {
-                     material = greenMaterial;
-                }
-                else if (lat % 2 != 0 && lon % 2 == 0) {
-                     material = greenMaterial;
-                }
-                else {
-                     material = redMaterial;
-                }
-                
-                float radiusLayer = 1.01f;
-                
-                this.AddQuadrilateral(
-                        root3D,
-                        GeoCoord.geoCoordTo3dCoord(lat + 5, lon + 5, radiusLayer),
-                        GeoCoord.geoCoordTo3dCoord(lat, lon + 5, radiusLayer),
-                        GeoCoord.geoCoordTo3dCoord(lat, lon, radiusLayer),
-                        GeoCoord.geoCoordTo3dCoord(lat + 5, lon, radiusLayer),
-                        material );
-           }
-        }
+        rm = new ResourceManager();
+        rm.readTemperatureFile("src/resources/tempanomaly_4x4grid.csv");
+        System.out.println("Max anomaly : " + rm.getMaxTempAnomaly() + ", Min anomaly : " + rm.getMinTempAnomaly());
+        
+        // !!!!!!!!!!!!   TODO AFTER INITILAIZATION ??!???!!!???   !!!!!!!!!!!!!!!!!!!
+        drawEarth(root3D);
+        
 
         //Add a camera group
         PerspectiveCamera camera = new PerspectiveCamera(true);
@@ -186,72 +140,6 @@ public class ApplicationController implements Initializable {
         new CameraManager(camera, pane3D, root3D);
     }
 
-
-    /*
-        TODO : reuse this method later ??
-        (defined in TutoJFx3D)
-    */
-    // public Cylinder createLine(Point3D origin, Point3D target) { }
-    
-    /*
-        TODO : reuse this method to display user click on globe ??
-        (defined in TutoJFx3D)
-    */
-    // public void displayTown(Group parent, String name, float latitude, float longitude) { }
-    
-    /**
-     * 
-     * @param parent
-     * @param topRight
-     * @param bottomRight
-     * @param bottomLeft
-     * @param topLeft
-     * @param material 
-     */
-    private void AddQuadrilateral(Group parent, Point3D topRight, Point3D bottomRight, Point3D bottomLeft, Point3D topLeft, PhongMaterial material)
-    {
-        final TriangleMesh triangleMesh = new TriangleMesh();
-        
-        final float[] points = {
-            (float)topRight.getX(),     (float)topRight.getY(),     (float)topRight.getZ(),
-            (float)topLeft.getX(),      (float)topLeft.getY(),      (float)topLeft.getZ(),
-            (float)bottomLeft.getX(),   (float)bottomLeft.getY(),   (float)bottomLeft.getZ(),
-            (float)bottomRight.getX(),  (float)bottomRight.getY(),  (float)bottomRight.getZ(),
-        };
-        
-        final float[] texCoords = {
-            1, 1,
-            1, 0,
-            0, 1,
-            0, 0
-        };
-        
-        final int[] faces = {
-            0, 1, 1, 0, 2, 2,
-            0, 1, 2, 2, 3, 3
-        };
-        
-        /*
-            points :
-            1       0
-            ---------   texture :
-            |      /|   1,1(0)  1,0(1)
-            |     / |     --------
-            |    /  |     |      |
-            |   /   |     |      |
-            |  /    |     --------
-            ---------   0,1(2)  0,0(3)
-            2       3
-        */
-        
-        triangleMesh.getPoints().setAll(points);
-        triangleMesh.getTexCoords().setAll(texCoords);
-        triangleMesh.getFaces().setAll(faces);
-        
-        final MeshView meshView = new MeshView(triangleMesh);
-        meshView.setMaterial(material);
-        parent.getChildren().addAll(meshView);
-    }
     
     private Group initAbove3D() {
         // Controls above 3D scene
@@ -301,7 +189,10 @@ public class ApplicationController implements Initializable {
         tfYear.setTextFormatter(formatter);
 
         playBtn.setGraphic(new ImageView(new Image("/resources/play.png", 25, 25, true, true)));
-        
+        /*
+        TODO : ""alternate"" with pause img :
+            playBtn.setGraphic(new ImageView(new Image("/resources/pause.png", 25, 25, true, true)));
+        */
         
         
         // change "mode" when a new radio button is selected
@@ -315,6 +206,11 @@ public class ApplicationController implements Initializable {
                     else if (tgGroup.getSelectedToggle() == tbBars) {
                         displayType = GlobeAnomaliesRepresentation.BY_HISTOGRAM;
                     }
+                    
+                    // TODO : impossible for the moment because root3D isnt accessible...
+                    // drawEarth(root3D);
+                    
+                    
                 }
                 System.out.println(displayType);
             }
@@ -407,14 +303,89 @@ public class ApplicationController implements Initializable {
                 - later in a dedicated class
                 - add "maintained click"
         */
-        speedUpBtn.setOnMouseClicked(event -> {
+        speedUp.setOnMouseClicked(event -> {
             currentSpeed.speedUp();
             speedLabel.setText(currentSpeed.toString());
         });
         
-        slowDownBtn.setOnMouseClicked(event -> {
+        slowDown.setOnMouseClicked(event -> {
             currentSpeed.slowDown();
             speedLabel.setText(currentSpeed.toString());
         });
+    }
+
+    private void drawEarth(Group parent) {
+        
+        /*
+            TODO : see https://stackoverflow.com/a/25214819
+            for better color gradient..
+        */
+        
+        
+        double matOpacity = 0.05;
+        Color blue = new Color(0, 0, 0.5, matOpacity);
+        Color red = new Color(0.5, 0, 0, matOpacity);
+        Color white = new Color(0.2, 0.2, 0.2, matOpacity);
+        
+        final PhongMaterial blueMaterial = new PhongMaterial();
+        blueMaterial.setDiffuseColor(blue);
+        blueMaterial.setSpecularColor(red);
+        
+        final PhongMaterial redMaterial = new PhongMaterial();
+        redMaterial.setDiffuseColor(red);
+        redMaterial.setSpecularColor(red);
+        
+        
+        
+        float anoMax = rm.getMaxTempAnomaly();
+        float anoMin = rm.getMinTempAnomaly();
+        
+                    
+        float radiusLayer = 1.01f;
+        
+        
+        
+        for (int lat = -88; lat <= 88; lat = lat + 4) {
+            for (int lon = -178; lon <= 178; lon = lon + 4) {
+                
+                float anomaly = rm.getAnomaly(lat, lon, 1880);
+                float delta = anomaly > 0 ? anomaly/anoMax : -anomaly/-anoMin;
+                
+                if (displayType == GlobeAnomaliesRepresentation.BY_COLOR) {
+                    PhongMaterial material = new PhongMaterial();
+                    if (anomaly > 0.1) {
+                        Color customRed = red.deriveColor(1.0, 1.0, 1.0, delta);
+                        material.setDiffuseColor(customRed);
+                        material.setSpecularColor(customRed);
+                    } else if (anomaly < -0.1) {
+                        Color customBlue = blue.interpolate(white, delta);
+                        material.setDiffuseColor(customBlue);
+                        material.setSpecularColor(customBlue);
+                    } else {
+                        Color transparent = Color.TRANSPARENT;
+                        material.setDiffuseColor(transparent);
+                        material.setSpecularColor(transparent);
+                    }
+                    
+                    GeometryManager.addQuadrilateral(
+                            parent,
+                            GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, radiusLayer),
+                            GeoCoord.geoCoordTo3dCoord(lat, lon + 4, radiusLayer),
+                            GeoCoord.geoCoordTo3dCoord(lat, lon, radiusLayer),
+                            GeoCoord.geoCoordTo3dCoord(lat + 4, lon, radiusLayer),
+                            material );
+                } else {
+                    Point3D origin = GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, 0.99f);
+                    Point3D target = GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, 0.99f + delta);
+                    
+                    
+                    Cylinder line = GeometryManager.createLine(origin, target);
+                    line.setMaterial( anomaly > 0 ? redMaterial : blueMaterial );
+                    
+                    parent.getChildren().add(line);
+                }
+                
+            }
+        }
     }
 }

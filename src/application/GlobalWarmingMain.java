@@ -17,12 +17,6 @@ public class GlobalWarmingMain extends Application {
     
     @Override
     public void start(Stage primaryStage) {
-        ResourceManager rm = new ResourceManager();
-        
-        rm.readTemperatureFile("src/resources/tempanomaly_4x4grid.csv");
-        
-        System.out.println("Max anomaly : " + rm.getMaxTempAnomaly() + ", Min anomaly : " + rm.getMinTempAnomaly());
-        
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/ApplicationView.fxml"));
             
