@@ -1,39 +1,154 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SplitMenuButton?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane id="BorderPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ApplicationController">
+<BorderPane id="BorderPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ApplicationController">
     <center>
-      <Pane fx:id="pane3D" maxHeight="600.0" maxWidth="600.0" minHeight="600.0" minWidth="600.0" prefHeight="600.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+      <Pane fx:id="pane3D" maxHeight="500.0" maxWidth="500.0" minHeight="500.0" minWidth="500.0" prefHeight="500.0" prefWidth="500.0" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
-      <HBox prefHeight="50.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
-            <Insets bottom="10.0" left="10.0" top="10.0" />
+            <Insets bottom="5.0" left="10.0" top="5.0" />
          </padding>
          <children>
-            <SplitMenuButton mnemonicParsing="false" popupSide="RIGHT" text="Vitesse">
-              <items>
-                <MenuItem mnemonicParsing="false" text="x1" />
-                <MenuItem mnemonicParsing="false" text="x2" />
-                <MenuItem mnemonicParsing="false" text="x3" />
-                <MenuItem mnemonicParsing="false" text="x4" />
-              </items>
-            </SplitMenuButton>
+            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" prefWidth="480.0">
+               <children>
+                  <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="20.0">
+                     <children>
+                        <Button fx:id="playBtn" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" />
+                        <Slider fx:id="yearsSlider" max="2020.0" min="1880.0" prefWidth="400.0" showTickLabels="true" showTickMarks="true" value="1880.0" />
+                     </children>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Button fx:id="slowDownBtn" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 2em;" text="-" />
+                        <Label fx:id="speedLabel" text="x1" />
+                        <Button fx:id="speedUpBtn" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 2em;" text="+" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <StackPane>
+               <HBox.margin>
+                  <Insets left="100.0" />
+               </HBox.margin>
+               <children>
+                  <TextField fx:id="tfYear" maxWidth="150.0" prefHeight="30.0" promptText="Année" style="-fx-background-radius: 3em;" StackPane.alignment="CENTER">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </TextField>
+                  <ImageView fx:id="searchIcon" accessibleRole="BUTTON" fitHeight="20.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER_RIGHT">
+                     <image>
+                        <Image url="@../resources/search.png" />
+                     </image>
+                     <StackPane.margin>
+                        <Insets right="10.0" />
+                     </StackPane.margin>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+               </children>
+            </StackPane>
          </children>
       </HBox>
    </bottom>
    <right>
-      <VBox prefHeight="200.0" prefWidth="170.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="200.0" prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
             <Insets left="20.0" top="20.0" />
          </padding>
+         <children>
+            <Label alignment="CENTER" contentDisplay="TOP" prefHeight="68.0" prefWidth="260.0" text="Informations sur la zone sélectionnée :" textAlignment="CENTER" wrapText="true">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <Separator maxWidth="260.0" prefWidth="200.0" />
+            <HBox maxWidth="-Infinity" minWidth="-Infinity" prefWidth="260.0">
+               <children>
+                  <Label prefWidth="100.0" text="Latitude">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
+                  <Label text=":">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label fx:id="latitudeLabel" prefWidth="100.0" text="___°____">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox layoutX="30.0" layoutY="121.0" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="260.0">
+               <children>
+                  <Label prefWidth="100.0" text="Longitude">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
+                  <Label text=":">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label fx:id="longitudeLabel" prefWidth="100.0" text="___°____">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <Separator layoutX="30.0" layoutY="108.0" maxWidth="260.0" prefWidth="200.0" />
+            <Label alignment="CENTER" prefWidth="260.0" text="Graphique anomalies :">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <LineChart fx:id="anomaliesChart" maxWidth="-Infinity" prefHeight="270.0" prefWidth="260.0">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </LineChart>
+         </children>
       </VBox>
    </right>
 </BorderPane>

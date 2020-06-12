@@ -1,5 +1,7 @@
 package model;
 
+import javafx.geometry.Point3D;
+
 /**
  * The GeoCoord class represents geographical coordinates.
  * Its latitude should range from -90 to 90.
@@ -8,6 +10,9 @@ package model;
  * @author adepreis
  */
 public class GeoCoord {
+    private static final float TEXTURE_LAT_OFFSET = -0.2f;
+    private static final float TEXTURE_LON_OFFSET = 2.8f;
+    
     private final int lat;
     private final int lon;
 
@@ -60,7 +65,27 @@ public class GeoCoord {
 
     @Override
     public String toString() {
-        return "GeoCoord{" + "lat=" + lat + ", lon=" + lon + '}';
+        return "GeoCoord : " + "lat=" + latToString() + ", lon=" + lonToString() + '}';
+    }
+    
+    public String latToString() {
+        return lat < 0 ? lat + "° Nord" : lat + "° Sud" ;
+    }
+    
+    public String lonToString() {
+        return lon < 0 ? lon + "° Ouest" : lat + "° Est" ;
+    }
+    
+
+    public static Point3D geoCoordTo3dCoord(float lat, float lon, float radius) {
+        float lat_cor = lat + TEXTURE_LAT_OFFSET;
+        float lon_cor = lon + TEXTURE_LON_OFFSET;
+        return new Point3D(
+                -java.lang.Math.sin(java.lang.Math.toRadians(lon_cor))
+                        * java.lang.Math.cos(java.lang.Math.toRadians(lat_cor)) * radius,
+                -java.lang.Math.sin(java.lang.Math.toRadians(lat_cor)) * radius,
+                java.lang.Math.cos(java.lang.Math.toRadians(lon_cor))
+                        * java.lang.Math.cos(java.lang.Math.toRadians(lat_cor)) * radius);
     }
     
 }

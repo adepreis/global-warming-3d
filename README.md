@@ -19,7 +19,7 @@ Things you need to install the project :
 If you use a later JDK, be careful because JavaFX is decoupled from the JDK since the JDK 11.
 You have to download it separately [here](https://gluonhq.com/products/javafx/).
 
-- [JUnit 4](https://www.java.com/fr/download/https://junit.org/junit4/) for testing purpose.
+- [JUnit 4](https://junit.org/junit4/) for testing purpose.
 
 ### Installing
 
