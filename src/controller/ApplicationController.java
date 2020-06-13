@@ -26,8 +26,13 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.AnimationSpeed;
@@ -161,6 +166,13 @@ public class ApplicationController implements Initializable {
         
         HBox tgHBox = new HBox(tbBars, tbColor);
         
+        Stop[] stops = new Stop[] { new Stop(0, Color.RED), new Stop(1, Color.BLUE)};
+        LinearGradient lg = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops);
+        Rectangle scale = new Rectangle(0, 0, 20, 250);
+        scale.setFill(lg);
+        scale.setStroke(Color.BLACK);
+        scale.setStrokeWidth(1);
+        
         
 //        yearLabel.setLayoutX(pane3D.getWidth()/2);
 //        yearLabel.setLayoutY(pane3D.getHeight()/2);
@@ -174,8 +186,11 @@ public class ApplicationController implements Initializable {
         tgHBox.layoutXProperty().bind(pane3D.widthProperty().multiply(0.03f));
         tgHBox.layoutYProperty().bind(pane3D.heightProperty().multiply(0.03f));
         
+        scale.layoutXProperty().bind(pane3D.widthProperty().subtract(scale.widthProperty().add(5)));
+        scale.layoutYProperty().bind(pane3D.heightProperty().divide(2).subtract(scale.heightProperty().divide(2)));
         
-        return new Group(yearLabel, tgHBox);
+        
+        return new Group(yearLabel, tgHBox, scale);
     }
     
     private void init2D() {

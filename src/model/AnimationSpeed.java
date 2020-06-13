@@ -8,6 +8,9 @@ package model;
 public class AnimationSpeed {
     // TODO : convert speed type into SimpleIntegerProperty ??
     private int speed;
+    
+    private final int MIN_SPEED = 0;
+    private final int MAX_SPEED = 5;
 
     public AnimationSpeed(int speed) {
         this.speed = speed;
@@ -23,12 +26,16 @@ public class AnimationSpeed {
     }    
 
     public void slowDown() {
-        // TODO : limit min speed
-        this.speed -= 1;
+        // limit min speed
+        if (this.speed > MIN_SPEED) {
+            this.speed -= 1;
+        }
     }
 
     public void speedUp() {
-        // TODO : limit max speed
-        this.speed += 1;
+        // limit max speed
+        if (this.speed < MAX_SPEED) {
+            this.speed += 1;
+        }
     }
 }
