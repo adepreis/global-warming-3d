@@ -9,7 +9,7 @@ public class AnimationSpeed {
     // TODO : convert speed type into SimpleIntegerProperty ??
     private int speed;
     
-    private final int MIN_SPEED = 0;
+    private final int MIN_SPEED = 1;
     private final int MAX_SPEED = 5;
 
     public AnimationSpeed(int speed) {

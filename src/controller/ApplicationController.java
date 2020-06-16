@@ -26,13 +26,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.AnimationSpeed;
@@ -41,6 +36,7 @@ import model.GlobeAnomaliesRepresentation;
 import model.ResourceManager;
 import util.CameraManager;
 import util.GeometryManager;
+import view.Scale;
 
 /**
  * ApplicationView FXML Controller class
@@ -56,6 +52,9 @@ public class ApplicationController implements Initializable {
     
     @FXML
     private Pane pane3D;
+    
+    Group root3D;
+    Group anoGroup;
     
     
     private ToggleButton tbColor;
@@ -100,7 +99,9 @@ public class ApplicationController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //Create a Pane et graph scene root for the 3D content
-        Group root3D = new Group();
+        root3D = new Group();
+        
+        anoGroup = new Group();
 
         root3D.getChildren().add(GeometryManager.load(this.getClass().getResource("/resources/earth/earth.obj")));
         
@@ -110,7 +111,8 @@ public class ApplicationController implements Initializable {
         System.out.println("Max anomaly : " + rm.getMaxTempAnomaly() + ", Min anomaly : " + rm.getMinTempAnomaly());
         
         // !!!!!!!!!!!!   TODO AFTER INITILAIZATION ??!???!!!???   !!!!!!!!!!!!!!!!!!!
-        drawEarth(root3D);
+        displayType = GlobeAnomaliesRepresentation.BY_COLOR;
+        drawAnomalies();
         
 
         //Add a camera group
@@ -119,7 +121,7 @@ public class ApplicationController implements Initializable {
 
         // Add ambient light
         AmbientLight ambientLight = new AmbientLight(Color.WHITE);
-        ambientLight.getScope().addAll(root3D);
+        ambientLight.getScope().add(root3D);
         root3D.getChildren().add(ambientLight);
         
         
@@ -134,7 +136,6 @@ public class ApplicationController implements Initializable {
         // need to be done after subScene adding to be displayed above
         pane3D.getChildren().add(initAbove3D());
         
-        displayType = GlobeAnomaliesRepresentation.BY_COLOR;
         currentSpeed = new AnimationSpeed(1);
         
         init2D();
@@ -166,13 +167,8 @@ public class ApplicationController implements Initializable {
         
         HBox tgHBox = new HBox(tbBars, tbColor);
         
-        Stop[] stops = new Stop[] { new Stop(0, Color.RED), new Stop(1, Color.BLUE)};
-        LinearGradient lg = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops);
-        Rectangle scale = new Rectangle(0, 0, 20, 250);
-        scale.setFill(lg);
-        scale.setStroke(Color.BLACK);
-        scale.setStrokeWidth(1);
         
+        Scale scale = new Scale(20, 250, Color.RED, Color.BLUE);
         
 //        yearLabel.setLayoutX(pane3D.getWidth()/2);
 //        yearLabel.setLayoutY(pane3D.getHeight()/2);
@@ -222,9 +218,7 @@ public class ApplicationController implements Initializable {
                         displayType = GlobeAnomaliesRepresentation.BY_HISTOGRAM;
                     }
                     
-                    // TODO : impossible for the moment because root3D isnt accessible...
-                    // drawEarth(root3D);
-                    
+                    drawAnomalies();
                     
                 }
                 System.out.println(displayType);
@@ -299,21 +293,6 @@ public class ApplicationController implements Initializable {
         
         
         /*
-            TODO : reuse next piece of code to animate slider on playBtn click :
-        */
-        // Rotate animation
-//        final long startNanoTime = System.nanoTime();
-//        new AnimationTimer() {
-//            @Override
-//            public void handle(long currentNanoTime) {
-//                double t = (currentNanoTime - startNanoTime) / 1000000000.0;
-//                greenCube.setRotationAxis(new Point3D(0, 1, 0));
-//                greenCube.setRotate(10 * t);
-//            }
-//        }.start();
-
-
-        /*
             TODO : tempo :
                 - later in a dedicated class
                 - add "maintained click"
@@ -327,20 +306,48 @@ public class ApplicationController implements Initializable {
             currentSpeed.slowDown();
             speedLabel.setText(currentSpeed.toString());
         });
+        
+        
+        /*
+            TODO : animate slider on playBtn click :
+        */
+        playBtn.setOnMouseClicked(event -> {
+            final long startNanoTime = System.nanoTime();
+            new AnimationTimer() {
+                @Override
+                public void handle(long currentNanoTime) {
+                    double t = (currentNanoTime - startNanoTime) / 10000000.0;
+//                    if (t % currentSpeed.getSpeed() == 0) { }
+                    yearsSlider.increment();
+
+    //                    greenCube.setRotate(10 * t);      // USE t VARIABLE !!!
+
+                    if (yearsSlider.getValue() == yearsSlider.getMax()) {
+                        this.stop();
+                    }
+                }
+            }.start();
+        });
     }
 
-    private void drawEarth(Group parent) {
+    private void drawAnomalies() {
         
         /*
             TODO : see https://stackoverflow.com/a/25214819
             for better color gradient..
         */
         
+        root3D.getChildren().remove(anoGroup); // -> delete light and earth :/
         
-        double matOpacity = 0.05;
+        anoGroup.getChildren().clear();
+        
+        double matOpacity = 0.08;
         Color blue = new Color(0, 0, 0.5, matOpacity);
+        Color lightBlue = new Color(0, 0.1, 0.2, matOpacity);
+        Color white = new Color(0.5, 0.5, 0.5, matOpacity);
         Color red = new Color(0.5, 0, 0, matOpacity);
-        Color white = new Color(0.2, 0.2, 0.2, matOpacity);
+        Color yellow = new Color(0.5, 0.5, 0.0, matOpacity);
+        Color orange = new Color(0.5, 0.25, 0.0, matOpacity);
         
         final PhongMaterial blueMaterial = new PhongMaterial();
         blueMaterial.setDiffuseColor(blue);
@@ -349,7 +356,6 @@ public class ApplicationController implements Initializable {
         final PhongMaterial redMaterial = new PhongMaterial();
         redMaterial.setDiffuseColor(red);
         redMaterial.setSpecularColor(red);
-        
         
         
         float anoMax = rm.getMaxTempAnomaly();
@@ -368,22 +374,21 @@ public class ApplicationController implements Initializable {
                 
                 if (displayType == GlobeAnomaliesRepresentation.BY_COLOR) {
                     PhongMaterial material = new PhongMaterial();
-                    if (anomaly > 0.1) {
-                        Color customRed = red.deriveColor(1.0, 1.0, 1.0, delta);
-                        material.setDiffuseColor(customRed);
-                        material.setSpecularColor(customRed);
-                    } else if (anomaly < -0.1) {
-                        Color customBlue = blue.interpolate(white, delta);
-                        material.setDiffuseColor(customBlue);
-                        material.setSpecularColor(customBlue);
+                    if (anomaly > 0.f) {
+                        Color hotter = delta > 0.5 ? (delta > 0.5 ? red : orange) : yellow;
+                        material.setDiffuseColor(hotter);
+                        material.setSpecularColor(hotter);
+                    } else if (anomaly < 0.f) {
+                        Color colder = delta > 0.5 ? (delta > 0.5 ? blue : lightBlue) : white;
+                        material.setDiffuseColor(colder);
+                        material.setSpecularColor(colder);
                     } else {
-                        Color transparent = Color.TRANSPARENT;
-                        material.setDiffuseColor(transparent);
-                        material.setSpecularColor(transparent);
+                        material.setDiffuseColor(Color.TRANSPARENT);
+                        material.setSpecularColor(Color.TRANSPARENT);
                     }
                     
                     GeometryManager.addQuadrilateral(
-                            parent,
+                            anoGroup,
                             GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, radiusLayer),
                             GeoCoord.geoCoordTo3dCoord(lat, lon + 4, radiusLayer),
                             GeoCoord.geoCoordTo3dCoord(lat, lon, radiusLayer),
@@ -397,10 +402,13 @@ public class ApplicationController implements Initializable {
                     Cylinder line = GeometryManager.createLine(origin, target);
                     line.setMaterial( anomaly > 0 ? redMaterial : blueMaterial );
                     
-                    parent.getChildren().add(line);
+                    anoGroup.getChildren().add(line);
                 }
                 
             }
         }
+        
+        
+        root3D.getChildren().add(anoGroup);
     }
 }
