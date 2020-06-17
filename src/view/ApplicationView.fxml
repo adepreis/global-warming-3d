@@ -59,7 +59,7 @@
                   </VBox>
                </children>
             </VBox>
-            <Slider fx:id="yearsSlider" max="2020.0" min="1880.0" prefWidth="400.0" showTickLabels="true" showTickMarks="true" value="1880.0" />
+            <Slider fx:id="yearsSlider" blockIncrement="1.0" max="2020.0" min="1880.0" prefWidth="400.0" showTickLabels="true" showTickMarks="true" value="1880.0" />
             <StackPane>
                <HBox.margin>
                   <Insets left="100.0" />
