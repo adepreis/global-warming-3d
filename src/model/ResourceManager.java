@@ -3,6 +3,7 @@ package model;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 /**
@@ -16,6 +17,9 @@ public class ResourceManager {
     
     private float minTempAnomaly;
     private float maxTempAnomaly;
+    
+    private int minYear = LocalDate.MIN.getYear();
+    private int maxYear = LocalDate.MAX.getYear();
     
     private CoordAnomaliesMap anomalyGrid;
 
@@ -114,7 +118,10 @@ public class ResourceManager {
             
             System.out.println("[INFO] The file at " + path + " contain " + years.length + " columns.");
             
+            // Udpate class attributes
             sampleNumber = years.length;
+            minYear = years[0];
+            maxYear = years[years.length-1];
             
             data = null;
             
@@ -134,7 +141,9 @@ public class ResourceManager {
                 
                 for (int i = 0; i < years.length; i++) {
                     // Float.NaN for the "NA" anomalies
-                    float value = data[i].equals("NA") ? Float.NaN : Float.parseFloat(data[i]);
+                    float value = data[i].equals("NA")
+                            ? Float.NaN
+                            : (float)Math.round(Float.parseFloat(data[i]) * 1000.f) / 1000.f;   // 3 digits precision
                     
                     if(value < minTempAnomaly) {
                         minTempAnomaly = value;         // update min temperature
@@ -156,5 +165,20 @@ public class ResourceManager {
             e.printStackTrace();
         }
         
+    }
+
+    public int getMinYear() {
+        return minYear;
+    }
+
+    public int getMaxYear() {
+        return maxYear;
+    }
+
+    @Override
+    public String toString() {
+        return "ResourceManager{" + "nbAnnees=" + sampleNumber +
+                ", minTempAnomaly=" + minTempAnomaly + ", maxTempAnomaly=" + maxTempAnomaly +
+                ", minYear=" + minYear + ", maxYear=" + maxYear + '}';
     }
 }

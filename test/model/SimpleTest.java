@@ -24,7 +24,7 @@ public class SimpleTest {
         try
         {
 //            resourceManager.readTemperatureFile(this.getClass().getResource("tempanomaly_4x4grid.csv").toURI().getPath());
-            resourceManager.readTemperatureFile("src/data/tempanomaly_4x4grid.csv");
+            resourceManager.readTemperatureFile("src/resources/tempanomaly_4x4grid.csv");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -48,7 +48,7 @@ public class SimpleTest {
     @Test
     public void MinTemperatureTest() {
         
-        assertEquals(-6.2441664f, resourceManager.getMinTempAnomaly(), 0.00001f);
+        assertEquals(-6.2441664f, resourceManager.getMinTempAnomaly(), 0.001f);
         
     }
     
@@ -58,7 +58,7 @@ public class SimpleTest {
     @Test
     public void MaxTemperatureTest() {
         
-        assertEquals(8.97125f, resourceManager.getMaxTempAnomaly(), 0.00001f);
+        assertEquals(8.97125f, resourceManager.getMaxTempAnomaly(), 0.001f);
         
     }
     
@@ -70,7 +70,7 @@ public class SimpleTest {
     public void TemperatureAnomalyTest() {
         
         float anomaly = resourceManager.getAnomaly(12, 154, 1881);
-        assertEquals(0.127083330492799f, anomaly, 0.00001f);
+        assertEquals(0.127083330492799f, anomaly, 0.001f);
     }
     
     /**
@@ -84,7 +84,7 @@ public class SimpleTest {
         
         float[] anomalies = resourceManager.getAllYearsFromCoord(12, 154);
 
-        assertArrayEquals(temperatureAnomalies12x154, anomalies, 0.00001f);
+        assertArrayEquals(temperatureAnomalies12x154, anomalies, 0.001f);
     }
     
     /**
@@ -99,6 +99,6 @@ public class SimpleTest {
         
         float[] anomalies = resourceManager.getAllCoordFromYear(1952);
 
-        assertArrayEquals(temperatureAnomalies1952, anomalies, 0.00001f);
+        assertArrayEquals(temperatureAnomalies1952, anomalies, 0.001f);
     }
 }

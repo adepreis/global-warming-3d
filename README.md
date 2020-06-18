@@ -21,6 +21,8 @@ You have to download it separately [here](https://gluonhq.com/products/javafx/).
 
 - [JUnit 4](https://junit.org/junit4/) for testing purpose.
 
+- Download and include the [ObjModelImporterJFX library](http://www.interactivemesh.org/models/jfx3dimporter.html) (jimObjModelImporterJFX.jar file)
+
 ### Installing
 
 Here are some instructions on how to get the development env running.

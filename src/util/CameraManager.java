@@ -89,13 +89,16 @@ public class CameraManager {
                 if (me.isShiftDown()) {
                     modifier = SHIFT_MULTIPLIER;
                 }
+                // Rotation feature
                 if (me.isPrimaryButtonDown()) {
                     ry.setAngle(ry.getAngle() + mouseDeltaX * modifier * ROTATION_SPEED);
                     rx.setAngle(rx.getAngle() - mouseDeltaY * modifier * ROTATION_SPEED);
-                } else if (me.isSecondaryButtonDown()) {
-                    cameraXform2.setTranslateX(cameraXform2.getTranslateX() - mouseDeltaX * MOUSE_SPEED * modifier * TRACK_SPEED);
-                    cameraXform2.setTranslateY(cameraXform2.getTranslateY() - mouseDeltaY * MOUSE_SPEED * modifier * TRACK_SPEED);
                 }
+                // Translation feature
+//                else if (me.isSecondaryButtonDown()) {
+//                    cameraXform2.setTranslateX(cameraXform2.getTranslateX() - mouseDeltaX * MOUSE_SPEED * modifier * TRACK_SPEED);
+//                    cameraXform2.setTranslateY(cameraXform2.getTranslateY() - mouseDeltaY * MOUSE_SPEED * modifier * TRACK_SPEED);
+//                }
             }
         });
         mainRoot.setOnScroll(new EventHandler<ScrollEvent>() {
@@ -103,12 +106,14 @@ public class CameraManager {
             public void handle(ScrollEvent event) {
                 double modifier = 1.0;
 
-                if (event.isControlDown()) {
+                // Handle multipler
+//                if (event.isControlDown()) {
                     modifier = CONTROL_MULTIPLIER;
-                }
-                if (event.isShiftDown()) {
-                    modifier = SHIFT_MULTIPLIER;
-                }
+//                }
+//                if (event.isShiftDown()) {
+//                    modifier = SHIFT_MULTIPLIER;
+//                }
+
                 double z = camera.getTranslateZ();
                 double newZ = z + event.getDeltaY() * MOUSE_SPEED * modifier;
                 if (newZ > CAMERA_MIN_DISTANCE) newZ = CAMERA_MIN_DISTANCE;

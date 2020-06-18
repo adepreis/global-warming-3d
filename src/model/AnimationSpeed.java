@@ -25,15 +25,19 @@ public class AnimationSpeed {
         return "x" + speed;
     }    
 
+    /**
+     * Decreases the speed value while respecting the min speed bound.
+     */
     public void slowDown() {
-        // limit min speed
         if (this.speed > MIN_SPEED) {
             this.speed -= 1;
         }
     }
 
+    /**
+     * Increases the speed value while respecting the max speed bound.
+     */
     public void speedUp() {
-        // limit max speed
         if (this.speed < MAX_SPEED) {
             this.speed += 1;
         }

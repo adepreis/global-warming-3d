@@ -11,10 +11,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
@@ -24,16 +22,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.MeshView;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.AnimationSpeed;
-import model.GeoCoord;
 import model.GlobeAnomaliesRepresentation;
 import model.ResourceManager;
 import model.YearModel;
@@ -54,6 +50,10 @@ public class ApplicationController implements Initializable {
     private ResourceManager rm;
     
     private YearModel year;
+    private boolean isPlaying = false;
+    
+    @FXML
+    private BorderPane mainPane;
     
     @FXML
     private Pane pane3D;
@@ -65,6 +65,7 @@ public class ApplicationController implements Initializable {
     private ToggleButton tbColor;
     private ToggleButton tbBars;
     private Label yearLabel;
+    private Scale scale;
     
     
     @FXML
@@ -104,7 +105,7 @@ public class ApplicationController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        //Create a Pane et graph scene root for the 3D content
+        //Create a graph scene root for the 3D content
         root3D = new Group();
         
         anoGroup = new Group();
@@ -114,10 +115,10 @@ public class ApplicationController implements Initializable {
         
         rm = new ResourceManager();
         rm.readTemperatureFile("src/resources/tempanomaly_4x4grid.csv");
-        System.out.println("Max anomaly : " + rm.getMaxTempAnomaly() + ", Min anomaly : " + rm.getMinTempAnomaly());
+        System.out.println(rm.toString());
         
         
-        year = new YearModel(1880);   // rm.getMinYear());
+        year = new YearModel(rm.getMinYear());
         
         root3D.getChildren().add(anoGroup);
         
@@ -145,7 +146,11 @@ public class ApplicationController implements Initializable {
         
         
         // need to be done after subScene adding to be displayed above
+        
         pane3D.getChildren().add(initAbove3D());
+        
+        Tooltip tooltip = new Tooltip("Ctrl + Clic pour obtenir des informations sur une zone.");
+        Tooltip.install(pane3D, tooltip);
         
         currentSpeed = new AnimationSpeed(1);
         
@@ -172,21 +177,17 @@ public class ApplicationController implements Initializable {
         tbColor.setSelected(true);
         
         
-        yearLabel = new Label("1880");
+        yearLabel = new Label(Integer.toString(rm.getMinYear()));
         yearLabel.setFont(Font.font("System", FontWeight.BOLD, 35));
         
         
         HBox tgHBox = new HBox(tbBars, tbColor);
         
+        // initialize a scale adapted to the Color display mode :
+        scale = new Scale(20, 250, Color.RED, Color.ORANGE, Color.YELLOW,
+                                Color.YELLOW.invert(), Color.ORANGE.invert(), Color.RED.invert());
         
-//        Scale scale = new Scale(20, 250, Color.RED, Color.BLUE);
-        Scale scale = new Scale(20, 250, Color.RED, Color.ORANGE, Color.YELLOW, Color.WHITE, Color.LIGHTBLUE, Color.BLUE);
-        
-//        yearLabel.setLayoutX(pane3D.getWidth()/2);
-//        yearLabel.setLayoutY(pane3D.getHeight()/2);
-        
-//        yearLabel.translateXProperty().set(pane3D.getWidth()/2);
-//        yearLabel.translateYProperty().set(pane3D.getHeight()/2);
+//        yearLabel.setLayoutX(...); or yearLabel.translateXProperty().set(..); doesnt works
 
         yearLabel.layoutXProperty().bind(pane3D.widthProperty().subtract(yearLabel.widthProperty()).divide(2));
         yearLabel.layoutYProperty().bind(pane3D.heightProperty().subtract(yearLabel.heightProperty()));
@@ -196,7 +197,6 @@ public class ApplicationController implements Initializable {
         
         scale.layoutXProperty().bind(pane3D.widthProperty().subtract(scale.widthProperty().add(5)));
         scale.layoutYProperty().bind(pane3D.heightProperty().divide(2).subtract(scale.heightProperty().divide(2)));
-        
         
         return new Group(yearLabel, tgHBox, scale);
     }
@@ -212,10 +212,6 @@ public class ApplicationController implements Initializable {
         tfYear.setTextFormatter(formatter);
 
         playBtn.setGraphic(new ImageView(new Image("/resources/play.png", 25, 25, true, true)));
-        /*
-        TODO : ""alternate"" with pause img :
-            playBtn.setGraphic(new ImageView(new Image("/resources/pause.png", 25, 25, true, true)));
-        */
         
         
         // change "mode" when a new radio button is selected
@@ -223,11 +219,15 @@ public class ApplicationController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Toggle> observable, Toggle oldToggle, Toggle newToggle) {
                 if (tgGroup.getSelectedToggle() != null) {
+
                     if (tgGroup.getSelectedToggle() == tbColor) {
                         displayType = GlobeAnomaliesRepresentation.BY_COLOR;
+                        scale.setGradient(Color.RED, Color.ORANGE, Color.YELLOW,
+                                Color.YELLOW.invert(), Color.ORANGE.invert(), Color.RED.invert());
                     }
                     else if (tgGroup.getSelectedToggle() == tbBars) {
                         displayType = GlobeAnomaliesRepresentation.BY_HISTOGRAM;
+                        scale.setGradient(Color.RED, Color.BLUE);
                     }
                     
                     GeometryManager.drawAnomalies(anoGroup, rm, year.getCurrentYear(), displayType);
@@ -235,30 +235,6 @@ public class ApplicationController implements Initializable {
             }
         });
         
-        
-        /*
-            TODO : use next piece of code to hydrate the graphic (maybe not here) :
-        */
-        /*
-            //  Idem pour le graphe en ligne
-            CategoryAxis x2 = new CategoryAxis();
-            x2.setLabel("Avancement");
-            NumberAxis y2 = new NumberAxis();
-            y2.setLabel("Etat avancement");
-
-            LineChart lineGraphic = new LineChart(x2, y2);        
-
-            XYChart.Series<String, Number> serie2 = new XYChart.Series<>();
-            serie2.setName("Etat en fonction de l'avancement");
-
-            serie2.getData().add(new XYChart.Data<>("Jour 1", 0));
-            serie2.getData().add(new XYChart.Data<>("Jour 2", 2));
-            serie2.getData().add(new XYChart.Data<>("Jour 3", 3));
-            serie2.getData().add(new XYChart.Data<>("Jour 4", 7));
-            lineGraphic.getData().add(serie2);
-            lineGraphic.getStyleClass().add("chart-content");
-            root.add(lineGraphic, 0, 6);
-        */
     }
 
     private void initListeners() {
@@ -328,33 +304,99 @@ public class ApplicationController implements Initializable {
         });
         
         
-        /*
-            TODO : change playBtn icon on click and pause behaviour :
-        */
         playBtn.setOnMouseClicked(event -> {
+            playBtn.setGraphic(new ImageView(new Image("/resources/pause.png", 25, 25, true, true)));
             
-            final long startNanoTime = System.nanoTime();
+            // toggle boolean
+            isPlaying = !isPlaying;
+            
+            final long startTime = System.nanoTime();
             new AnimationTimer() {
+                
+                long nextTimeStamp = startTime/100000 + (1000 * (6- currentSpeed.getSpeed()));
+                    
                 @Override
-                public void handle(long currentNanoTime) {
-                    try {
-                        Thread.sleep(100 * (6-currentSpeed.getSpeed()));
-                    } catch (Exception e) {
+                public void handle(long now) {
+                    if (yearsSlider.getValue() == yearsSlider.getMax()
+                        || !isPlaying) {
+                        stop();
+                        playBtn.setGraphic(new ImageView(new Image("/resources/play.png", 25, 25, true, true)));
+                        return;
                     }
                     
-
-//                    double t = (currentNanoTime - startNanoTime);// / 10000000.0;
-//                    
-//                    if (t % currentSpeed.getSpeed() == 0)
+                    if (nextTimeStamp < now/100000) {
                         yearsSlider.increment();
-
-    //                    greenCube.setRotate(10 * t);      // USE t VARIABLE !!!
-
-                    if (yearsSlider.getValue() == yearsSlider.getMax()) {
-                        this.stop();
+                        nextTimeStamp = now/100000 + (1000 * (6- currentSpeed.getSpeed()));
                     }
                 }
             }.start();
+            
+        });
+        
+        
+        
+        /*
+            TODO : 
+            Continue right panel display
+            Invert current behaviour (hide panel when selected)
+        */
+        pane3D.setOnMouseClicked(event -> {
+            if (event.isControlDown()) {
+                System.out.println("Clicked x:" + event.getX() + " y:" + event.getY());
+                
+                /*
+                    TODO : reuse "displayTown(parent, latitude, longitude)" to display user click on globe ??
+                    (defined in TutoJFx3D)
+                */
+                
+                // Useful to select zone :
+                // https://docs.oracle.com/javase/8/javafx/graphics-tutorial/picking.htm
+
+                
+                // GeoCoord gc = ????.getZoneFromClick(event.getX(), event.getY());
+                // latitudeLabel.setText(gc.latToString());
+                // longitudeLabel.setText(gc.lonToString());
+                
+                
+                /*
+                    TODO : use next piece of code to hydrate the graphic (maybe not here) :
+                */
+                /*
+                    //  Idem pour le graphe en ligne
+                    CategoryAxis x2 = new CategoryAxis();
+                    // or ?
+                    final NumberAxis xAxis = new NumberAxis(1880, 2020, 25);
+                
+                    x2.setLabel("Avancement");
+                    NumberAxis y2 = new NumberAxis();
+                    y2.setLabel("Etat avancement");
+
+                    LineChart lineGraphic = new LineChart(x2, y2);        
+
+                    XYChart.Series<String, Number> serie2 = new XYChart.Series<>();
+                    serie2.setName("Etat en fonction de l'avancement");
+
+                    serie2.getData().add(new XYChart.Data<>("Jour 1", 0));
+                    serie2.getData().add(new XYChart.Data<>("Jour 2", 2));
+                    serie2.getData().add(new XYChart.Data<>("Jour 3", 3));
+                    serie2.getData().add(new XYChart.Data<>("Jour 4", 7));
+                    lineGraphic.getData().add(serie2);
+                    lineGraphic.getStyleClass().add("chart-content");
+                    root.add(lineGraphic, 0, 6);
+                */
+                
+                
+                
+                // Hide right panel :
+                
+                VBox vb = (VBox)mainPane.getRight();
+//                vb.setPrefWidth(0);   --> save vb here ?? before replacing it by null ??
+//                                      --> animate width decreasing ??
+                mainPane.setRight(null);
+                
+                
+//                pane3D.setPrefWidth(mainPane.getWidth());     // resize only pane3d not root3d
+            }
         });
     }
 

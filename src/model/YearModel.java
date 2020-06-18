@@ -4,6 +4,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 /**
+ * The YearModel class represents a selected year.
  *
  * @author Antonin
  */

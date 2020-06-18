@@ -7,6 +7,8 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 
 /**
+ * Scale class represents a color gradient corresponding to the temperature
+ * fluctuations.
  *
  * @author Antonin
  */
@@ -20,20 +22,11 @@ public class Scale extends Rectangle {
     public Scale(int width, int height, Color... colors) {
         super(width, height);
         
-        double tabSize = colors.length;
-        
-        Stop[] stops = new Stop[(int)tabSize];
-        
-        for (int i = 0; i < tabSize; i++) {
-            stops[i] = new Stop(i/(tabSize-1), colors[i]);
-        }
-        
-        LinearGradient lg = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops);
+        this.setGradient(colors);
         
 //        MIN_HUE = colorBottom.getHue();
 //        MAX_HUE = colorTop.getHue();
         
-        this.setFill(lg);
 //        this.setStroke(Color.BLACK);
 //        this.setStrokeWidth(1);
     }
@@ -46,5 +39,18 @@ public class Scale extends Rectangle {
 //        double hue = MIN_HUE + (MAX_HUE - MIN_HUE) * value; //(value - MIN) / (MAX - MIN) ;
 //        return Color.hsb(hue, 1.0, 1.0);
 //    }
+
+    public void setGradient(Color... colors) {
+        double tabSize = colors.length;
+        
+        Stop[] stops = new Stop[(int)tabSize];
+        
+        for (int i = 0; i < tabSize; i++) {
+            stops[i] = new Stop(i/(tabSize-1), colors[i]);
+        }
+        
+        LinearGradient lg = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops);
+        this.setFill(lg);
+    }
     
 }

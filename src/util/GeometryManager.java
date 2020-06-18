@@ -22,12 +22,26 @@ import model.ResourceManager;
  */
 public class GeometryManager {
     
+    private static final double MAT_OPACITY = 0.08;
+    private static final Color BLUE = new Color(0, 0, 0.5, MAT_OPACITY);
+    private static final Color LIGHT_BLUE = new Color(0, 0.1, 0.2, MAT_OPACITY);
+    private static final Color WHITE = new Color(0.3, 0.3, 0.3, MAT_OPACITY);
+    private static final Color RED = new Color(0.5, 0, 0, MAT_OPACITY);
+    private static final Color YELLOW = new Color(0.5, 0.5, 0.0, MAT_OPACITY);
+    private static final Color ORANGE = new Color(0.5, 0.3, 0.0, MAT_OPACITY);
+    
+    private static final PhongMaterial BLUE_MATERIAL = new PhongMaterial(BLUE);
+    
+    private static final PhongMaterial RED_MATERIAL = new PhongMaterial(RED);
+    
+    
     /**
+     * Load geometry from a 3D model path using ObjModelImporterJFX lib.
      *
      * @param path
      * @return
      */
-    public static Group load(URL path) {// Load geometry
+    public static Group load(URL path) {
         ObjModelImporter objImporter = new ObjModelImporter();
         try {
             URL modelUrl = path;
@@ -60,11 +74,6 @@ public class GeometryManager {
         return line;
     }
     
-    /*
-        TODO : reuse this method to display user click on globe ??
-        (defined in TutoJFx3D)
-    */
-    // public void displayTown(Group parent, String name, float latitude, float longitude) { }
     
     /**
      * 
@@ -98,18 +107,16 @@ public class GeometryManager {
             0, 1, 2, 2, 3, 3
         };
         
-        /*
-            points :
-            1       0
-            ---------   texture :
-            |      /|   1,1(0)  1,0(1)
-            |     / |     --------
-            |    /  |     |      |
-            |   /   |     |      |
-            |  /    |     --------
-            ---------   0,1(2)  0,0(3)
-            2       3
-        */
+        /*      points :
+                1       0
+                ---------   texture :
+                |      /|   1,1(0)  1,0(1)
+                |     / |     --------
+                |    /  |     |      |
+                |   /   |     |      |
+                |  /    |     --------
+                ---------   0,1(2)  0,0(3)
+                2       3                           */
         
         triangleMesh.getPoints().setAll(points);
         triangleMesh.getTexCoords().setAll(texCoords);
@@ -129,27 +136,10 @@ public class GeometryManager {
      * @param displayType
      */
     public static void drawAnomalies(Group anoGroup, ResourceManager rm, int year, GlobeAnomaliesRepresentation displayType) {
-        
-        /*
-            TODO : see Scale.getColorForValue() for better color gradient..
-        */
-        
-        double matOpacity = 0.08;
-        Color blue = new Color(0, 0, 0.5, matOpacity);
-        Color lightBlue = new Color(0, 0.1, 0.2, matOpacity);
-        Color white = new Color(0.3, 0.3, 0.3, matOpacity);
-        Color red = new Color(0.5, 0, 0, matOpacity);
-        Color yellow = new Color(0.5, 0.5, 0.0, matOpacity);
-        Color orange = new Color(0.5, 0.3, 0.0, matOpacity);
-        
-        final PhongMaterial blueMaterial = new PhongMaterial();
-        blueMaterial.setDiffuseColor(blue);
-        blueMaterial.setSpecularColor(red);
-        
-        final PhongMaterial redMaterial = new PhongMaterial();
-        redMaterial.setDiffuseColor(red);
-        redMaterial.setSpecularColor(red);
-        
+        // it's too bad to do this every time :
+        BLUE_MATERIAL.setSpecularColor(BLUE);
+        RED_MATERIAL.setSpecularColor(RED);
+    
         
         float anoMax = rm.getMaxTempAnomaly();
         float anoMin = rm.getMinTempAnomaly();
@@ -170,13 +160,16 @@ public class GeometryManager {
                 if (displayType == GlobeAnomaliesRepresentation.BY_COLOR) {
                     Color quadColor = Color.TRANSPARENT;
                     
+                    // TODO : see Scale.getColorForValue() for better color gradient or
                     // Math.round(delta); ???
-                    //Color quadColor = (anomaly > 0.f ? getColorOnScale(delta) : getColorOnScale(-delta));
+                    // Color quadColor = (anomaly > 0.f ? getColorOnScale(delta) : getColorOnScale(-delta));
                     
                     if (anomaly > 0.f) {
-                        quadColor = delta > 0.2 ? (delta > 0.7 ? red : orange) : yellow;
+                        quadColor = delta > 0.2 ? (delta > 0.7 ? RED : ORANGE) : YELLOW;
                     } else if (anomaly < 0.f) {
-                        quadColor = delta > 0.2 ? (delta > 0.7 ? blue : lightBlue) : white;
+                        // also works with quadColor.invert() (some changes needs
+                        // to be done in Scale) but is it more efficient ?
+                        quadColor = delta > 0.2 ? (delta > 0.7 ? BLUE : LIGHT_BLUE) : WHITE;
                     }
                     
                     material.setDiffuseColor(quadColor);
@@ -186,20 +179,23 @@ public class GeometryManager {
                     MeshView quad;
                     
                     try {
-                        // Change material color instead of replace entire quad !!!
+                        // Change material color instead of replacing entire quad
                         Node existingNode = anoGroup.getChildren().get(index);
                         
                         if(existingNode instanceof MeshView) {
                             quad = (MeshView) existingNode;
                             quad.setMaterial(material);
                         } else {
-                            anoGroup.getChildren().remove(existingNode);      // !!!! if the node is a line
+                            // the node isnt a meshview
+                            anoGroup.getChildren().remove(existingNode);
                             throw new Exception();
                         }
                         
                         // replace quadrilateral n°index
                         anoGroup.getChildren().set(index++, quad);
                     } catch (Exception e) {
+                        // When no quad exists before :
+                        
                         quad = createQuadrilateral(
                                 GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, radiusLayer),
                                 GeoCoord.geoCoordTo3dCoord(lat, lon + 4, radiusLayer),
@@ -210,31 +206,30 @@ public class GeometryManager {
                         anoGroup.getChildren().add(index++, quad);
                     }
                 } else {
-                    material =  anomaly > 0 ? redMaterial : blueMaterial;                    
+                    material =  anomaly > 0 ? RED_MATERIAL : BLUE_MATERIAL;                    
                     
                     Cylinder line;
                     
                     try {
-                        // Change material color instead of replace entire line
+                        // Change material color instead of replacing entire line
                         Node existingNode = anoGroup.getChildren().get(index);
                         
                         if(existingNode instanceof Cylinder) {
                             line = (Cylinder) existingNode;
+                            
                             line.setMaterial(material);
-                            
-                            
-                            // TODO : ALSO CHANGE HEIGHT !!!!!!!!!
                             line.setHeight(delta);
-                            
-                            
                         } else {
-                            anoGroup.getChildren().remove(existingNode);  // !!!! if the node is a meshview
+                            // the node isnt a line
+                            anoGroup.getChildren().remove(existingNode);
                             throw new Exception();
                         }
                         
                         // replace line n°index
                         anoGroup.getChildren().set(index++, line);
                     } catch (Exception e) {
+                        // When no line exists before :
+                        
                         Point3D origin = GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, 0.99f);
                         Point3D target = GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, 0.99f + delta);
 
