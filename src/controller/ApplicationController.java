@@ -17,6 +17,7 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,9 +28,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.MeshView;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Pair;
 import model.AnimationSpeed;
+import model.GeoCoord;
 import model.GlobeAnomaliesRepresentation;
 import model.ResourceManager;
 import model.YearModel;
@@ -75,7 +79,7 @@ public class ApplicationController implements Initializable {
     private Slider yearsSlider;
     
     @FXML
-    private Button playBtn;
+    private ImageView playPause;
     
     @FXML
     private ImageView slowDown;
@@ -93,7 +97,8 @@ public class ApplicationController implements Initializable {
     private Label longitudeLabel;
     
     @FXML
-    private LineChart anomaliesChart;
+    private VBox rightPanel;
+    private LineChart<Number, Number> anomaliesChart;
     
     @FXML
     private ImageView searchIcon;
@@ -168,13 +173,19 @@ public class ApplicationController implements Initializable {
         tgGroup = new ToggleGroup();
         
         tbColor = new ToggleButton("Couleurs");
+        tbColor.setPrefWidth(70);
+        tbColor.setStyle("-fx-background-radius: 0 10 10 0");
+        
         tbBars = new ToggleButton("Barres");
+        tbBars.setPrefWidth(70);
+        tbBars.setStyle("-fx-background-radius: 10 0 0 10");
         
         // links the toggle buttons to the toggle group
         tbColor.setToggleGroup(tgGroup);
         tbBars.setToggleGroup(tgGroup);
         
         tbColor.setSelected(true);
+        tbColor.setDisable(true);
         
         
         yearLabel = new Label(Integer.toString(rm.getMinYear()));
@@ -187,8 +198,6 @@ public class ApplicationController implements Initializable {
         scale = new Scale(20, 250, Color.RED, Color.ORANGE, Color.YELLOW,
                                 Color.YELLOW.invert(), Color.ORANGE.invert(), Color.RED.invert());
         
-//        yearLabel.setLayoutX(...); or yearLabel.translateXProperty().set(..); doesnt works
-
         yearLabel.layoutXProperty().bind(pane3D.widthProperty().subtract(yearLabel.widthProperty()).divide(2));
         yearLabel.layoutYProperty().bind(pane3D.heightProperty().subtract(yearLabel.heightProperty()));
         
@@ -210,9 +219,6 @@ public class ApplicationController implements Initializable {
         });
 
         tfYear.setTextFormatter(formatter);
-
-        playBtn.setGraphic(new ImageView(new Image("/resources/play.png", 25, 25, true, true)));
-        
         
         // change "mode" when a new radio button is selected
         this.tgGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
@@ -221,11 +227,15 @@ public class ApplicationController implements Initializable {
                 if (tgGroup.getSelectedToggle() != null) {
 
                     if (tgGroup.getSelectedToggle() == tbColor) {
+                        tbColor.setDisable(true);
+                        tbBars.setDisable(false);
                         displayType = GlobeAnomaliesRepresentation.BY_COLOR;
                         scale.setGradient(Color.RED, Color.ORANGE, Color.YELLOW,
                                 Color.YELLOW.invert(), Color.ORANGE.invert(), Color.RED.invert());
                     }
                     else if (tgGroup.getSelectedToggle() == tbBars) {
+                        tbBars.setDisable(true);
+                        tbColor.setDisable(false);
                         displayType = GlobeAnomaliesRepresentation.BY_HISTOGRAM;
                         scale.setGradient(Color.RED, Color.BLUE);
                     }
@@ -235,6 +245,17 @@ public class ApplicationController implements Initializable {
             }
         });
         
+        
+        final NumberAxis x1 = new NumberAxis(rm.getMinYear(), rm.getMaxYear(), 25);
+        x1.setLabel("Années");
+        
+        final NumberAxis y1 = new NumberAxis((int)rm.getMinTempAnomaly()-1, (int)rm.getMaxTempAnomaly()+1, 2);
+        y1.setLabel("Anomalies");
+        
+        anomaliesChart = new LineChart<>(x1, y1);
+        anomaliesChart.setCreateSymbols(false);
+        anomaliesChart.setLegendVisible(false);
+        mainPane.setRight(null);
     }
 
     private void initListeners() {
@@ -304,8 +325,8 @@ public class ApplicationController implements Initializable {
         });
         
         
-        playBtn.setOnMouseClicked(event -> {
-            playBtn.setGraphic(new ImageView(new Image("/resources/pause.png", 25, 25, true, true)));
+        playPause.setOnMouseClicked(event -> {
+            playPause.setImage(new Image("/resources/pause.png", 25, 25, true, true));
             
             // toggle boolean
             isPlaying = !isPlaying;
@@ -320,7 +341,7 @@ public class ApplicationController implements Initializable {
                     if (yearsSlider.getValue() == yearsSlider.getMax()
                         || !isPlaying) {
                         stop();
-                        playBtn.setGraphic(new ImageView(new Image("/resources/play.png", 25, 25, true, true)));
+                        playPause.setImage(new Image("/resources/play.png", 25, 25, true, true));
                         return;
                     }
                     
@@ -334,67 +355,44 @@ public class ApplicationController implements Initializable {
         });
         
         
-        
-        /*
-            TODO : 
-            Continue right panel display
-            Invert current behaviour (hide panel when selected)
-        */
-        pane3D.setOnMouseClicked(event -> {
+        pane3D.setOnMouseReleased(event -> {
+            
             if (event.isControlDown()) {
-                System.out.println("Clicked x:" + event.getX() + " y:" + event.getY());
                 
-                /*
-                    TODO : reuse "displayTown(parent, latitude, longitude)" to display user click on globe ??
-                    (defined in TutoJFx3D)
-                */
+                if (mainPane.getRight() == null) {
+                    mainPane.setRight(rightPanel);
+                }
                 
-                // Useful to select zone :
-                // https://docs.oracle.com/javase/8/javafx/graphics-tutorial/picking.htm
+                if (event.getPickResult().getIntersectedNode() instanceof MeshView) {
+                    // TODO : remove old green point before adding a new one !
+                    GeometryManager.displayPoint(root3D, event.getPickResult().getIntersectedPoint());
+                
+                    Pair<Integer, Integer> latLon = GeoCoord.coord3dToGeoCoord(event.getPickResult().getIntersectedPoint());
+                    
+                    latitudeLabel.setText(GeoCoord.latToString(latLon.getKey()));
+                    longitudeLabel.setText(GeoCoord.lonToString(latLon.getValue()));
+                    
+                    
+                    float[] dataEvolution = rm.getAllYearsFromCoord(latLon.getKey(), latLon.getValue());
+                
+                    LineChart.Series<Number, Number> serie = new LineChart.Series<>();
 
-                
-                // GeoCoord gc = ????.getZoneFromClick(event.getX(), event.getY());
-                // latitudeLabel.setText(gc.latToString());
-                // longitudeLabel.setText(gc.lonToString());
-                
-                
-                /*
-                    TODO : use next piece of code to hydrate the graphic (maybe not here) :
-                */
-                /*
-                    //  Idem pour le graphe en ligne
-                    CategoryAxis x2 = new CategoryAxis();
-                    // or ?
-                    final NumberAxis xAxis = new NumberAxis(1880, 2020, 25);
-                
-                    x2.setLabel("Avancement");
-                    NumberAxis y2 = new NumberAxis();
-                    y2.setLabel("Etat avancement");
-
-                    LineChart lineGraphic = new LineChart(x2, y2);        
-
-                    XYChart.Series<String, Number> serie2 = new XYChart.Series<>();
-                    serie2.setName("Etat en fonction de l'avancement");
-
-                    serie2.getData().add(new XYChart.Data<>("Jour 1", 0));
-                    serie2.getData().add(new XYChart.Data<>("Jour 2", 2));
-                    serie2.getData().add(new XYChart.Data<>("Jour 3", 3));
-                    serie2.getData().add(new XYChart.Data<>("Jour 4", 7));
-                    lineGraphic.getData().add(serie2);
-                    lineGraphic.getStyleClass().add("chart-content");
-                    root.add(lineGraphic, 0, 6);
-                */
-                
-                
-                
+                    for (int i = 0; i < dataEvolution.length; i++) {
+                        serie.getData().add(new LineChart.Data<>(i+1880, dataEvolution[i]));                        
+                    }
+                    
+                    // hydrate the graphic (maybe not here) :
+                    rightPanel.getChildren().remove(anomaliesChart);
+                    anomaliesChart.getData().clear();
+                    anomaliesChart.getData().add(serie);
+                    rightPanel.getChildren().add(anomaliesChart);
+                    
+                    serie.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: #DD3300;");
+                }
+            } else {
                 // Hide right panel :
-                
-                VBox vb = (VBox)mainPane.getRight();
-//                vb.setPrefWidth(0);   --> save vb here ?? before replacing it by null ??
-//                                      --> animate width decreasing ??
                 mainPane.setRight(null);
-                
-                
+
 //                pane3D.setPrefWidth(mainPane.getWidth());     // resize only pane3d not root3d
             }
         });

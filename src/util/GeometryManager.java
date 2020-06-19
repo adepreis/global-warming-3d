@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
+import javafx.scene.shape.Sphere;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -33,6 +34,8 @@ public class GeometryManager {
     private static final PhongMaterial BLUE_MATERIAL = new PhongMaterial(BLUE);
     
     private static final PhongMaterial RED_MATERIAL = new PhongMaterial(RED);
+    
+    private static final PhongMaterial GREEN_MATERIAL = new PhongMaterial(Color.GREEN);
     
     
     /**
@@ -242,5 +245,27 @@ public class GeometryManager {
                 
             }
         }
+    }
+    
+    /**
+     * 
+     * @param parent
+     * @param position 
+     */
+    public static void displayPoint(Group parent, Point3D position) {
+        Sphere point = new Sphere(0.02);
+        
+        GREEN_MATERIAL.setSpecularColor(Color.GREEN);
+        
+        point.setMaterial(GREEN_MATERIAL);
+        
+        Group town = new Group(point);
+        
+        /*  translaté à la bonne position */
+        town.setTranslateX(position.getX());
+        town.setTranslateY(position.getY());
+        town.setTranslateZ(position.getZ());
+        
+        parent.getChildren().add(town);
     }
 }

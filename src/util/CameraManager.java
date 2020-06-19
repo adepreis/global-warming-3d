@@ -86,9 +86,10 @@ public class CameraManager {
                 if (me.isControlDown()) {
                     modifier = CONTROL_MULTIPLIER;
                 }
-                if (me.isShiftDown()) {
-                    modifier = SHIFT_MULTIPLIER;
-                }
+//                if (me.isShiftDown()) {
+//                    modifier = SHIFT_MULTIPLIER;
+//                }
+
                 // Rotation feature
                 if (me.isPrimaryButtonDown()) {
                     ry.setAngle(ry.getAngle() + mouseDeltaX * modifier * ROTATION_SPEED);

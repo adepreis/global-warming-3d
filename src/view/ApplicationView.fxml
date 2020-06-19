@@ -2,10 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
@@ -33,7 +29,14 @@
                <children>
                   <VBox alignment="CENTER" prefHeight="80.0" spacing="5.0">
                      <children>
-                        <Button fx:id="playBtn" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" />
+                        <ImageView fx:id="playPause" accessibleRole="BUTTON" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/play.png" />
+                           </image>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </ImageView>
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
                               <ImageView fx:id="slowDown" accessibleRole="BUTTON" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
@@ -90,7 +93,7 @@
       </HBox>
    </bottom>
    <right>
-      <VBox prefHeight="200.0" prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="rightPanel" prefHeight="200.0" prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
             <Insets left="20.0" top="20.0" />
          </padding>
@@ -151,14 +154,6 @@
                   <Font size="18.0" />
                </font>
             </Label>
-            <LineChart fx:id="anomaliesChart" maxWidth="-Infinity" prefHeight="270.0" prefWidth="260.0">
-              <xAxis>
-                <CategoryAxis side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis side="LEFT" />
-              </yAxis>
-            </LineChart>
          </children>
       </VBox>
    </right>

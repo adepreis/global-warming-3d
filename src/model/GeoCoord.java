@@ -1,6 +1,7 @@
 package model;
 
 import javafx.geometry.Point3D;
+import javafx.util.Pair;
 
 /**
  * The GeoCoord class represents geographical coordinates.
@@ -69,11 +70,19 @@ public class GeoCoord {
     }
     
     public String latToString() {
-        return lat < 0 ? lat + "° Nord" : lat + "° Sud" ;
+        return latToString(lat);
     }
     
     public String lonToString() {
-        return lon < 0 ? lon + "° Ouest" : lat + "° Est" ;
+        return lonToString(lon);
+    }
+    
+    public static String latToString(int lati) {
+        return lati < 0 ? lati + "° Nord" : lati + "° Sud" ;
+    }
+    
+    public static String lonToString(int longi) {
+        return longi < 0 ? longi + "° Ouest" : longi + "° Est" ;
     }
     
 
@@ -81,11 +90,24 @@ public class GeoCoord {
         float lat_cor = lat + TEXTURE_LAT_OFFSET;
         float lon_cor = lon + TEXTURE_LON_OFFSET;
         return new Point3D(
-                -java.lang.Math.sin(java.lang.Math.toRadians(lon_cor))
-                        * java.lang.Math.cos(java.lang.Math.toRadians(lat_cor)) * radius,
-                -java.lang.Math.sin(java.lang.Math.toRadians(lat_cor)) * radius,
-                java.lang.Math.cos(java.lang.Math.toRadians(lon_cor))
-                        * java.lang.Math.cos(java.lang.Math.toRadians(lat_cor)) * radius);
+                -Math.sin(Math.toRadians(lon_cor))
+                        * Math.cos(Math.toRadians(lat_cor)) * radius,
+                -Math.sin(Math.toRadians(lat_cor)) * radius,
+                Math.cos(Math.toRadians(lon_cor))
+                        * Math.cos(Math.toRadians(lat_cor)) * radius);
+    }
+
+    public static Pair<Integer, Integer> coord3dToGeoCoord(Point3D point3D) {
+        double lat_cor = Math.asin(point3D.getZ() / 1.0f);
+        double lon_cor = Math.atan2(point3D.getY(), point3D.getX());
+        
+        lat_cor = (float)Math.toDegrees(lat_cor);
+        lon_cor = (float)Math.toDegrees(lon_cor);
+        
+        lat_cor -= TEXTURE_LAT_OFFSET;
+        lon_cor -= TEXTURE_LON_OFFSET;
+        
+        return new Pair<>((int)(4*(Math.round(lat_cor/4))), (int)(4*(Math.round(lon_cor/4))+2));
     }
     
 }
