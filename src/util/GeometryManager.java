@@ -18,6 +18,7 @@ import model.GlobeAnomaliesRepresentation;
 import model.ResourceManager;
 
 /**
+ * Utility class used to build 3D shapes.
  *
  * @author Antonin
  */
@@ -25,8 +26,6 @@ public class GeometryManager {
     
     private static final double MAT_OPACITY = 0.08;
     private static final Color BLUE = new Color(0, 0, 0.5, MAT_OPACITY);
-    private static final Color LIGHT_BLUE = new Color(0, 0.1, 0.2, MAT_OPACITY);
-    private static final Color WHITE = new Color(0.3, 0.3, 0.3, MAT_OPACITY);
     private static final Color RED = new Color(0.5, 0, 0, MAT_OPACITY);
     private static final Color YELLOW = new Color(0.5, 0.5, 0.0, MAT_OPACITY);
     private static final Color ORANGE = new Color(0.5, 0.3, 0.0, MAT_OPACITY);
@@ -57,11 +56,23 @@ public class GeometryManager {
         return new Group(meshViews);
     }
     
+    public static Cylinder createLine(Point3D target) {
+        return createLine(Point3D.ZERO, target);
+    }
+    
     // From Rahel Lüthy : https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
     public static Cylinder createLine(Point3D origin, Point3D target) {
         Point3D yAxis = new Point3D(0, 1, 0);
         Point3D diff = target.subtract(origin);
         double height = diff.magnitude();
+        
+        
+        
+        if (Double.isNaN(height)) {
+            height = 1.0;
+        }
+        
+        
         
         Point3D mid = target.midpoint(origin);
         Translate moveToMidpoint = new Translate(mid.getX(), mid.getY(), mid.getZ());
@@ -156,7 +167,8 @@ public class GeometryManager {
             for (int lon = -178; lon <= 178; lon = lon + 4) {
                 
                 float anomaly = rm.getAnomaly(lat, lon, year);
-                float delta = anomaly > 0 ? anomaly/anoMax : -anomaly/-anoMin;
+                double delta = anomaly > 0 ? anomaly/anoMax : -anomaly/-anoMin;
+                delta = Math.floor(delta*100)/100;
                 
                 PhongMaterial material = new PhongMaterial();
                 
@@ -170,9 +182,7 @@ public class GeometryManager {
                     if (anomaly > 0.f) {
                         quadColor = delta > 0.2 ? (delta > 0.7 ? RED : ORANGE) : YELLOW;
                     } else if (anomaly < 0.f) {
-                        // also works with quadColor.invert() (some changes needs
-                        // to be done in Scale) but is it more efficient ?
-                        quadColor = delta > 0.2 ? (delta > 0.7 ? BLUE : LIGHT_BLUE) : WHITE;
+                        quadColor = delta > 0.2 ? (delta > 0.7 ? RED.invert() : ORANGE.invert()) : YELLOW.invert();                
                     }
                     
                     material.setDiffuseColor(quadColor);
@@ -221,7 +231,7 @@ public class GeometryManager {
                             line = (Cylinder) existingNode;
                             
                             line.setMaterial(material);
-                            line.setHeight(delta);
+                            line.setHeight(0.99f + delta);
                         } else {
                             // the node isnt a line
                             anoGroup.getChildren().remove(existingNode);
@@ -233,10 +243,9 @@ public class GeometryManager {
                     } catch (Exception e) {
                         // When no line exists before :
                         
-                        Point3D origin = GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, 0.99f);
                         Point3D target = GeoCoord.geoCoordTo3dCoord(lat + 4, lon + 4, 0.99f + delta);
 
-                        line = createLine(origin, target);
+                        line = createLine(target);
                         
                         line.setMaterial(material);
                         anoGroup.getChildren().add(line);
@@ -248,9 +257,10 @@ public class GeometryManager {
     }
     
     /**
+     * Adds a green point to the specified group, at the given position.
      * 
-     * @param parent
-     * @param position 
+     * @param parent targeted group
+     * @param position 3D point
      */
     public static void displayPoint(Group parent, Point3D position) {
         Sphere point = new Sphere(0.02);

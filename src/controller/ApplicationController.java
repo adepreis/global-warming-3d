@@ -16,8 +16,6 @@ import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -29,8 +27,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.util.Pair;
 import model.AnimationSpeed;
 import model.GeoCoord;
@@ -39,7 +35,9 @@ import model.ResourceManager;
 import model.YearModel;
 import util.CameraManager;
 import util.GeometryManager;
+import view.AnomalyChart;
 import view.Scale;
+import view.YearLabel;
 
 /**
  * ApplicationView FXML Controller class
@@ -68,7 +66,7 @@ public class ApplicationController implements Initializable {
     
     private ToggleButton tbColor;
     private ToggleButton tbBars;
-    private Label yearLabel;
+    private YearLabel yearLabel;
     private Scale scale;
     
     
@@ -98,7 +96,7 @@ public class ApplicationController implements Initializable {
     
     @FXML
     private VBox rightPanel;
-    private LineChart<Number, Number> anomaliesChart;
+    private AnomalyChart anomaliesChart;
     
     @FXML
     private ImageView searchIcon;
@@ -109,7 +107,6 @@ public class ApplicationController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
         //Create a graph scene root for the 3D content
         root3D = new Group();
         
@@ -125,22 +122,20 @@ public class ApplicationController implements Initializable {
         
         year = new YearModel(rm.getMinYear());
         
-        root3D.getChildren().add(anoGroup);
-        
-        // !!!!!!!!!!!!   TODO AFTER INITILAIZATION ??!???!!!???   !!!!!!!!!!!!!!!!!!!
+        // Define display mode and display anomalies
         displayType = GlobeAnomaliesRepresentation.BY_COLOR;
         GeometryManager.drawAnomalies(anoGroup, rm, year.getCurrentYear(), displayType);
         
 
-        //Add a camera group
-        PerspectiveCamera camera = new PerspectiveCamera(true);
-
-
         // Add ambient light
         AmbientLight ambientLight = new AmbientLight(Color.WHITE);
         ambientLight.getScope().add(root3D);
-        root3D.getChildren().add(ambientLight);
         
+        root3D.getChildren().addAll(ambientLight, anoGroup);
+        
+        
+        // Add a camera group
+        PerspectiveCamera camera = new PerspectiveCamera(true);
         
         // Create scene
         SubScene subScene = new SubScene(root3D, 500, 500, true, SceneAntialiasing.BALANCED);
@@ -151,11 +146,7 @@ public class ApplicationController implements Initializable {
         
         
         // need to be done after subScene adding to be displayed above
-        
         pane3D.getChildren().add(initAbove3D());
-        
-        Tooltip tooltip = new Tooltip("Ctrl + Clic pour obtenir des informations sur une zone.");
-        Tooltip.install(pane3D, tooltip);
         
         currentSpeed = new AnimationSpeed(1);
         
@@ -188,8 +179,7 @@ public class ApplicationController implements Initializable {
         tbColor.setDisable(true);
         
         
-        yearLabel = new Label(Integer.toString(rm.getMinYear()));
-        yearLabel.setFont(Font.font("System", FontWeight.BOLD, 35));
+        yearLabel = new YearLabel(rm.getMinYear());
         
         
         HBox tgHBox = new HBox(tbBars, tbColor);
@@ -211,6 +201,8 @@ public class ApplicationController implements Initializable {
     }
     
     private void init2D() {
+        Tooltip tooltip = new Tooltip("Ctrl + Clic pour obtenir des informations sur une zone.");
+        Tooltip.install(pane3D, tooltip);
         
         // Restrict input length "client side" :
         Pattern pattern = Pattern.compile(".{0,4}");
@@ -245,16 +237,10 @@ public class ApplicationController implements Initializable {
             }
         });
         
+        anomaliesChart = new AnomalyChart(rm);
         
-        final NumberAxis x1 = new NumberAxis(rm.getMinYear(), rm.getMaxYear(), 25);
-        x1.setLabel("Années");
+        rightPanel.getChildren().add(anomaliesChart);
         
-        final NumberAxis y1 = new NumberAxis((int)rm.getMinTempAnomaly()-1, (int)rm.getMaxTempAnomaly()+1, 2);
-        y1.setLabel("Anomalies");
-        
-        anomaliesChart = new LineChart<>(x1, y1);
-        anomaliesChart.setCreateSymbols(false);
-        anomaliesChart.setLegendVisible(false);
         mainPane.setRight(null);
     }
 
@@ -335,7 +321,7 @@ public class ApplicationController implements Initializable {
             new AnimationTimer() {
                 
                 long nextTimeStamp = startTime/100000 + (1000 * (6- currentSpeed.getSpeed()));
-                    
+                
                 @Override
                 public void handle(long now) {
                     if (yearsSlider.getValue() == yearsSlider.getMax()
@@ -356,7 +342,6 @@ public class ApplicationController implements Initializable {
         
         
         pane3D.setOnMouseReleased(event -> {
-            
             if (event.isControlDown()) {
                 
                 if (mainPane.getRight() == null) {
@@ -373,27 +358,16 @@ public class ApplicationController implements Initializable {
                     longitudeLabel.setText(GeoCoord.lonToString(latLon.getValue()));
                     
                     
+                    // TO FIX : if lat value is negativized, the graphe seems more accurate !
                     float[] dataEvolution = rm.getAllYearsFromCoord(latLon.getKey(), latLon.getValue());
-                
-                    LineChart.Series<Number, Number> serie = new LineChart.Series<>();
-
-                    for (int i = 0; i < dataEvolution.length; i++) {
-                        serie.getData().add(new LineChart.Data<>(i+1880, dataEvolution[i]));                        
-                    }
                     
-                    // hydrate the graphic (maybe not here) :
-                    rightPanel.getChildren().remove(anomaliesChart);
-                    anomaliesChart.getData().clear();
-                    anomaliesChart.getData().add(serie);
-                    rightPanel.getChildren().add(anomaliesChart);
-                    
-                    serie.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: #DD3300;");
+                    // Hydrates the graphic
+                    anomaliesChart.updateData(dataEvolution);
                 }
             } else {
                 // Hide right panel :
                 mainPane.setRight(null);
-
-//                pane3D.setPrefWidth(mainPane.getWidth());     // resize only pane3d not root3d
+//                pane3D.setPrefWidth(mainPane.getWidth());     // resize only pane3d not root3d...
             }
         });
     }

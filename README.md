@@ -6,6 +6,10 @@ HMI project - Polytech ET3 IT - Noted for S6
 
 [Subject link](./Sujet_projetIHMJava2020.pdf)
 
+All remaining bugs and unimplemented features are listed [here](https://github.com/adepreis/global-warming-3d/issues).
+
+![Illustration : application screenshot](./Screenshot-20200620.png)  
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development purpose.

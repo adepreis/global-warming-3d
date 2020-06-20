@@ -23,22 +23,7 @@ public class Scale extends Rectangle {
         super(width, height);
         
         this.setGradient(colors);
-        
-//        MIN_HUE = colorBottom.getHue();
-//        MAX_HUE = colorTop.getHue();
-        
-//        this.setStroke(Color.BLACK);
-//        this.setStrokeWidth(1);
     }
-
-    // from https://stackoverflow.com/a/25214819
-//    public Color getColorForValue(double value) {
-////        if (value < MIN || value > MAX) {
-////            return Color.BLACK ;
-////        }
-//        double hue = MIN_HUE + (MAX_HUE - MIN_HUE) * value; //(value - MIN) / (MAX - MIN) ;
-//        return Color.hsb(hue, 1.0, 1.0);
-//    }
 
     public void setGradient(Color... colors) {
         double tabSize = colors.length;

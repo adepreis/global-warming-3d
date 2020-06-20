@@ -7,6 +7,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.transform.Rotate;
 
+/**
+ * Utility class used to handle user's camera manipulations.
+ */
 public class CameraManager {
 
     private static final double CAMERA_MIN_DISTANCE = -0.5;

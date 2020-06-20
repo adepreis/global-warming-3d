@@ -78,15 +78,22 @@ public class GeoCoord {
     }
     
     public static String latToString(int lati) {
-        return lati < 0 ? lati + "° Nord" : lati + "° Sud" ;
+        return lati <= 0 ? -lati + "° Nord" : lati + "° Sud" ;
     }
     
     public static String lonToString(int longi) {
-        return longi < 0 ? longi + "° Ouest" : longi + "° Est" ;
+        return longi <= 0 ? -longi + "° Ouest" : longi + "° Est" ;
     }
     
-
-    public static Point3D geoCoordTo3dCoord(float lat, float lon, float radius) {
+    /**
+     * Converts geographic coordinates into a 3D point.
+     * 
+     * @param lat
+     * @param lon
+     * @param radius
+     * @return 
+     */
+    public static Point3D geoCoordTo3dCoord(float lat, float lon, double radius) {
         float lat_cor = lat + TEXTURE_LAT_OFFSET;
         float lon_cor = lon + TEXTURE_LON_OFFSET;
         return new Point3D(
@@ -97,9 +104,18 @@ public class GeoCoord {
                         * Math.cos(Math.toRadians(lat_cor)) * radius);
     }
 
+    /**
+     * Converts a 3D point into geographic coordinates.
+     * 
+     * @param point3D
+     * @return a pair corresponding to geographic coordinates.
+     * (key : latitude, value : longitude)
+     */
     public static Pair<Integer, Integer> coord3dToGeoCoord(Point3D point3D) {
-        double lat_cor = Math.asin(point3D.getZ() / 1.0f);
-        double lon_cor = Math.atan2(point3D.getY(), point3D.getX());
+        double adjustedY = (point3D.getY() > 0) ? Math.min(point3D.getY(), 1.0) : Math.max(point3D.getY(), -1.0);
+        
+        double lat_cor = Math.asin(adjustedY / 1.0f);
+        double lon_cor = Math.atan2(point3D.getZ(), point3D.getX());
         
         lat_cor = (float)Math.toDegrees(lat_cor);
         lon_cor = (float)Math.toDegrees(lon_cor);
@@ -107,6 +123,7 @@ public class GeoCoord {
         lat_cor -= TEXTURE_LAT_OFFSET;
         lon_cor -= TEXTURE_LON_OFFSET;
         
+        // TO FIX. Caution : return 92° for south pole latitude (which doesnt exists !)
         return new Pair<>((int)(4*(Math.round(lat_cor/4))), (int)(4*(Math.round(lon_cor/4))+2));
     }
     
