@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
+import util.ErrorManager;
 
 /**
  * ResourceManager class gather the model manipulated by the application's user.
@@ -161,8 +162,8 @@ public class ResourceManager {
             file.close();
             
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            ErrorManager.displayLoadWarning(path);
         }
         
     }

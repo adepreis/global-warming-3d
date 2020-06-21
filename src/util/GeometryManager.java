@@ -43,13 +43,14 @@ public class GeometryManager {
      * @param path
      * @return
      */
-    public static Group load(URL path) {
+    public static Group load(String path) {
         ObjModelImporter objImporter = new ObjModelImporter();
         try {
-            URL modelUrl = path;
+            URL modelUrl = GeometryManager.class.getClass().getResource(path);
             objImporter.read(modelUrl);
         } catch (Exception e) {
             System.err.println(e.getMessage());
+            ErrorManager.displayLoadWarning(path);
         }
         MeshView[] meshViews = objImporter.getImport();
         

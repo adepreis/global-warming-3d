@@ -34,6 +34,7 @@ import model.GlobeAnomaliesRepresentation;
 import model.ResourceManager;
 import model.YearModel;
 import util.CameraManager;
+import util.ErrorManager;
 import util.GeometryManager;
 import view.AnomalyChart;
 import view.Scale;
@@ -104,6 +105,9 @@ public class ApplicationController implements Initializable {
 
     /**
      * Initializes the controller class.
+     * 
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -112,7 +116,7 @@ public class ApplicationController implements Initializable {
         
         anoGroup = new Group();
 
-        root3D.getChildren().add(GeometryManager.load(this.getClass().getResource("/resources/earth/earth.obj")));
+        root3D.getChildren().add(GeometryManager.load("/resources/earth/earth.obj"));
         
         
         rm = new ResourceManager();
@@ -201,8 +205,12 @@ public class ApplicationController implements Initializable {
     }
     
     private void init2D() {
-        Tooltip tooltip = new Tooltip("Ctrl + Clic pour obtenir des informations sur une zone.");
-        Tooltip.install(pane3D, tooltip);
+        Tooltip tooltip3D = new Tooltip("Ctrl + Clic pour obtenir des informations sur une zone.");
+        Tooltip.install(pane3D, tooltip3D);
+        
+        Tooltip tooltipSearch = new Tooltip("Cliquez sur la loupe ou tapez la touche"
+                + "\n'Enter' pour lancer la recherche.");
+        Tooltip.install(searchIcon, tooltipSearch);
         
         // Restrict input length "client side" :
         Pattern pattern = Pattern.compile(".{0,4}");
@@ -261,6 +269,7 @@ public class ApplicationController implements Initializable {
                         }
                     } catch (Exception ex) {
                         System.err.println("Impossible to parse the input given.");
+                        ErrorManager.displayWrongInput(tfYear.getText());
                     } finally {
                         tfYear.setText("");
                     }
