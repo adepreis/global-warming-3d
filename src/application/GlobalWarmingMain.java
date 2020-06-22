@@ -1,6 +1,5 @@
 package application;
 
-import java.io.IOException;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -8,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import util.ErrorManager;
 
 /**
  * Main class of the application.
@@ -17,17 +17,20 @@ import javafx.stage.Stage;
 public class GlobalWarmingMain extends Application {
     
     @Override
-    public void start(Stage primaryStage) {        
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/ApplicationView.fxml"));
+    public void start(Stage primaryStage) {
+        final String fxmlPath = "/view/ApplicationView.fxml";
+        
+        try {            
+            // Initialize the application's window
+            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
             
             primaryStage.setTitle("Global Warming 3D");
             primaryStage.setResizable(false);
             primaryStage.setScene(new Scene(root));
             primaryStage.show();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             System.err.println(ex.getMessage());
-            ex.printStackTrace();
+            ErrorManager.displayLoadWarning(fxmlPath);
         }
     }
 

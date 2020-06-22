@@ -11,6 +11,11 @@ import javafx.scene.text.FontWeight;
  */
 public class YearLabel extends Label {
 
+    /**
+     * Initializes the label with a font size of 35.
+     * 
+     * @param year 
+     */
     public YearLabel(int year) {
         super(Integer.toString(year));
         setFont(Font.font("System", FontWeight.BOLD, 35));

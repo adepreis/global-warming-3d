@@ -86,15 +86,13 @@ public class ResourceManager {
      */
     public void readTemperatureFile(String path) {
         
-        // clear all attribute before updating them :
+        // Clear all attribute before updating them :
         sampleNumber = 0;
         minTempAnomaly = Float.MAX_VALUE;
         maxTempAnomaly = Float.MIN_VALUE;
         anomalyGrid = new CoordAnomaliesMap();
         
         try {
-            // this.getClass().getResource("tempanomaly_4x4grid.csv").toURI().getPath()
-            
             FileReader file = new FileReader(path);
             BufferedReader bufRead = new BufferedReader(file);
             
@@ -111,7 +109,7 @@ public class ResourceManager {
                 return;
             }
             
-            // remove first 2 strings..
+            // Remove first 2 strings..
             data = Arrays.copyOfRange(data, 2, data.length);
             // and cast data to an int array (list of years of the 1st line) :
             int[] years = Arrays.stream(data).mapToInt(Integer::parseInt).toArray();
@@ -126,16 +124,16 @@ public class ResourceManager {
             
             data = null;
             
-            //Read the file line by line
+            // Read the file line by line
             while ((line = bufRead.readLine()) != null)
             {
-                //Get data from the line
+                // Get data from the line
                 data = line.split(",");
                 
                 int lat = Integer.parseInt(data[0]);
                 int lon = Integer.parseInt(data[1]);
                 
-                // remove first 2 int..
+                // Remove first 2 int..
                 data = Arrays.copyOfRange(data, 2, data.length);
                 
                 AnnualAnomaliesMap yearAno = new AnnualAnomaliesMap();

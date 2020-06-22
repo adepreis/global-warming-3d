@@ -26,7 +26,7 @@ public class AnomalyChart extends LineChart {
     /**
      * Clears the old line and displays a new set of data.
      * 
-     * @param anomalies 
+     * @param anomalies the array of float used to populate the chart.
      */
     public void updateData(float[] anomalies) {
         LineChart.Series<Number, Number> serie = new LineChart.Series<>();

@@ -12,19 +12,20 @@ import javafx.scene.shape.Rectangle;
  *
  * @author Antonin
  */
-public class Scale extends Rectangle {
-
-//    private final double MIN = 100 ;    // width
-//    private final double MAX = 1000 ;   // height ?
-//    private final double MIN_HUE;
-//    private final double MAX_HUE;
+public final class Scale extends Rectangle {
 
     public Scale(int width, int height, Color... colors) {
         super(width, height);
-        
-        this.setGradient(colors);
+        // Class is final because of "Overridable method call in constructor" here :
+        setGradient(colors);
     }
 
+    /**
+     * Change the aspect of the scale.
+     * 
+     * @param colors a set of Colors used to build the gradient. Order : from
+     * the top to the bottom.
+     */
     public void setGradient(Color... colors) {
         double tabSize = colors.length;
         

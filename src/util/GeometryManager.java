@@ -57,6 +57,12 @@ public class GeometryManager {
         return new Group(meshViews);
     }
     
+    /**
+     * Returns a Cylinder shape from the origin to the target point.
+     * 
+     * @param target
+     * @return a Cylinder object.
+     */
     public static Cylinder createLine(Point3D target) {
         return createLine(Point3D.ZERO, target);
     }
@@ -68,7 +74,7 @@ public class GeometryManager {
         double height = diff.magnitude();
         
         
-        
+        // TO FIX : Issue #4 : Uninitialized Histograms
         if (Double.isNaN(height)) {
             height = 1.0;
         }
@@ -91,13 +97,14 @@ public class GeometryManager {
     
     
     /**
+     * Returns a quadrilateral shape corresponding to a geographical zone.
      * 
-     * @param topRight
-     * @param bottomRight
-     * @param bottomLeft
-     * @param topLeft
-     * @param material 
-     * @return  
+     * @param topRight      top right of the quadrilateral.
+     * @param bottomRight   bottom right of the quadrilateral.
+     * @param bottomLeft    bottom left of the quadrilateral.
+     * @param topLeft       top left of the quadrilateral.
+     * @param material make the quad' in the specified PhongMaterial.
+     * @return a MeshView object.
      */
     public static MeshView createQuadrilateral(Point3D topRight, Point3D bottomRight, Point3D bottomLeft, Point3D topLeft, PhongMaterial material)
     {
@@ -144,6 +151,8 @@ public class GeometryManager {
     }
     
     /**
+     * Creates and attachs anomalies shapes (corresponding to the chosen year
+     * and display mode) to the specified Group.
      *
      * @param anoGroup
      * @param rm
