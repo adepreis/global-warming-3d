@@ -185,8 +185,7 @@ public class GeometryManager {
                 if (displayType == GlobeAnomaliesRepresentation.BY_COLOR) {
                     Color quadColor = Color.TRANSPARENT;
                     
-                    // TODO : see Scale.getColorForValue() for better color gradient or
-                    // Math.round(delta); ???
+                    // TODO : choose quadColor based on the Scale ? like this :
                     // Color quadColor = (anomaly > 0.f ? getColorOnScale(delta) : getColorOnScale(-delta));
                     
                     if (anomaly > 0.f) {

@@ -39,9 +39,9 @@ Don't forget to include the [ObjModelImporterJFX library](http://www.interactive
 
 ---
 
-### Run the latest version
+## Run the latest version
 
-Execute the last .jar file genarated as a standalone application using :
+Execute the last .jar file generated as a standalone application using :
 
 `java -jar global-warming-3d.jar`
 
