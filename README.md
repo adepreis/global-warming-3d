@@ -39,6 +39,14 @@ Don't forget to include the [ObjModelImporterJFX library](http://www.interactive
 
 ---
 
+### Run the latest version
+
+Execute the last .jar file genarated as a standalone application using :
+
+`java -jar global-warming-3d.jar`
+
+---
+
 ## Documentation
 
 In the `/doc` folder, you can find the project's Javadoc, the UML class diagram, the report and the wireframes/mockups of the interface.

@@ -1,8 +1,9 @@
 package model;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.Arrays;
 import util.ErrorManager;
@@ -93,8 +94,9 @@ public class ResourceManager {
         anomalyGrid = new CoordAnomaliesMap();
         
         try {
-            FileReader file = new FileReader(path);
-            BufferedReader bufRead = new BufferedReader(file);
+            InputStream is = this.getClass().getResourceAsStream(path);
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader bufRead = new BufferedReader(isr);
             
             //bufRead.read();     // skip first "\""
             String line = bufRead.readLine();
@@ -142,7 +144,8 @@ public class ResourceManager {
                     // Float.NaN for the "NA" anomalies
                     float value = data[i].equals("NA")
                             ? Float.NaN
-                            : (float)Math.round(Float.parseFloat(data[i]) * 1000.f) / 1000.f;   // 3 digits precision
+                            // save value with 3 digits precision
+                            : (float)Math.round(Float.parseFloat(data[i]) * 1000.f) / 1000.f;
                     
                     if(value < minTempAnomaly) {
                         minTempAnomaly = value;         // update min temperature
@@ -157,12 +160,12 @@ public class ResourceManager {
             }
             
             bufRead.close();
-            file.close();
-            
+            isr.close();
+            is.close();            
         } catch (IOException e) {
             System.out.println(e.getMessage());
             ErrorManager.displayLoadWarning(path);
-        }
+        } 
         
     }
 

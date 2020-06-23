@@ -117,7 +117,7 @@ public class ApplicationController implements Initializable {
         
         
         rm = new ResourceManager();
-        rm.readTemperatureFile("src/resources/tempanomaly_4x4grid.csv");
+        rm.readTemperatureFile("/resources/tempanomaly_4x4grid.csv");
         System.out.println(rm.toString());
         
         

@@ -11,3 +11,6 @@ Ni 1.000000
 d 1.000000
 illum 0
 map_Kd earth_lights_4800.png
+
+# Black and white texture for better readability :
+# map_Kd earth_lights_4800_nb.png
