@@ -2,6 +2,7 @@ package util;
 
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 import java.net.URL;
+import java.util.Iterator;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -280,10 +281,24 @@ public class GeometryManager {
         
         Group town = new Group(point);
         
+        town.setId("lastPosition");
+        
         /*  translaté à la bonne position */
         town.setTranslateX(position.getX());
         town.setTranslateY(position.getY());
         town.setTranslateZ(position.getZ());
+        
+        // Iterator and not foreach because we want to remove node during searching :
+        Iterator<Node> it = parent.getChildren().iterator();
+        while( it.hasNext() ) {
+            Node node = it.next();
+            
+            // Avoid NullPointerException if null ID
+            if ("lastPosition".equals(node.getId())) {
+                parent.getChildren().remove(node);
+                break;
+            }
+        }
         
         parent.getChildren().add(town);
     }

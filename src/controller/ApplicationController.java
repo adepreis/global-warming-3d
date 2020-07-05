@@ -338,7 +338,6 @@ public class ApplicationController implements Initializable {
                         mainPane.setRight(rightPanel);
                     }
                     
-                    // TODO : remove old green point before adding a new one !
                     GeometryManager.displayPoint(root3D, event.getPickResult().getIntersectedPoint());
                 
                     // Compute click's geographical position and update right panel

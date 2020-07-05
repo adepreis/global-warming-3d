@@ -1,6 +1,6 @@
 # global-warming-3d
 
-HMI project - Polytech ET3 IT - Noted for S6
+HMI project - Polytech ET3 IT - Noted for S6 (2020)
 
 ## Objectives / Asked work
 
@@ -25,6 +25,7 @@ You have to download it separately [here](https://gluonhq.com/products/javafx/).
 
 - [JUnit 4](https://junit.org/junit4/) for testing purpose.
 
+
 ### Installing
 
 Here are some instructions on how to get the development env running.
@@ -37,11 +38,18 @@ Then create the Java project from `/src` folder using your favorite IDE.
 
 Don't forget to include the [ObjModelImporterJFX library](http://www.interactivemesh.org/models/jfx3dimporter.html), the .jar file is located in `/libs`.
 
+
+### Testing
+
+Don't forget to include JUnit 4 (or later) library to the project.
+
+The existing unit tests are classified by package in `/test`.
+
 ---
 
 ## Run the latest version
 
-Execute the last .jar file generated as a standalone application using :
+Execute the .jar file from the last [release assets](https://github.com/adepreis/global-warming-3d/releases/tag/0.1) as a standalone application using :
 
 `java -jar global-warming-3d.jar`
 
